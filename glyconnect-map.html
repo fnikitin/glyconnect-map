@@ -4,7 +4,7 @@
 `glyconnect-map`
 First map in glyconnect
 
-@demo demo/index.html 
+@demo demo/index.html
 -->
 
 <dom-module id="glyconnect-map">
@@ -48,8 +48,12 @@ First map in glyconnect
         fill: none;
       }
 
+      svg {
+        display: block;
+        margin: auto;
+      }
     </style>
-    <div id="map" style="width: 100%;"></div>
+    <div id="map" style="display:block; margin:auto"></div>
   </template>
 
   <script>
@@ -58,24 +62,38 @@ First map in glyconnect
       is: 'glyconnect-map',
 
       properties: {
-        prop1: {
+        changePage: {
           type: String,
-          value: 'glyconnect-map',
+          notify: true,
+          reflectToAttribute: true
         },
+        octData: {
+          type: Object,
+          reflectToAttribute: true,
+          observer: 'createOctopus'
+        }
       },
 
 
-      attached: function(){
+      createOctopus: function(){
+
         // Way to force polymer to apply style to D3 svg.
         this.scopeSubtree(this.$.map, true);
-
-        var data = [
-          ["H3N2", ["S1", "S2", "S3"],["P1", "P2", "P3"]],
-          ["H3N2F1", ["S4", "S5"],["P11", "P22", "P3"]],
-          ["H3N3", ["S6"],["P13", "P2", "P3"]],
-          ["H5N2", ["S7", "S8"],["P11", "P23"]],
-          ["H3N3F1", ["S9"],["P1", "P2"]],
-          ["H3N4", ["S10", "S11", "S12"],["P5"]]];
+        var that = this;
+        var data = [];
+        for(var i = 0; i < this.octData.length; i++){
+          var singleArray = [];
+          if(!this.octData[i].proteins){
+            this.octData[i].proteins = []
+          }
+          if(!this.octData[i].structures){
+            this.octData[i].structures = []
+          }
+          singleArray.push(this.compositionToString(this.octData[i].composition));
+          singleArray.push(this.octData[i].structures);
+          singleArray.push(this.octData[i].proteins);
+          data.push(singleArray);
+        }
 
         // transform the data into a useful representation
         // 1 is inner, 2, is outer
@@ -163,23 +181,6 @@ First map in glyconnect
           links: links
         }
 
-       /* // sort the data -- TODO: have multiple sort options
-        outer = data.outer;
-        data.outer = Array(outer.length);
-
-
-        var i1 = 0;
-        var i2 = outer.length - 1;
-
-        for (var i = 0; i < data.outer.length; ++i)
-        {
-          if (i % 2 == 1)
-            data.outer[i2--] = outer[i];
-          else
-            data.outer[i1++] = outer[i];
-        }
-*/
-
 
         // from d3 colorbrewer:
         // This product includes color specifications and designs developed by Cynthia Brewer (http://colorbrewer.org/).
@@ -196,7 +197,6 @@ First map in glyconnect
         var link_width = "1px";
 
         var il = data.inner.length;
-        //var ol = data.outer.length;
 
         var inner_y = d3.scale.linear()
                 .domain([0, il])
@@ -228,7 +228,6 @@ First map in glyconnect
           return d;
         });
 
-        console.log(data);
         function get_color(name)
         {
           var c = Math.round(color(name));
@@ -255,8 +254,9 @@ First map in glyconnect
                   "y": d.outer.x > 180 ? d.inner.x : d.inner.x + rect_width}; })
                 .projection(function(d) { return [d.y, d.x]; });
 
-
-        var svg = d3.select(this.$.map).append("svg")
+        var map = this.$.map;
+        map.innerHTML = '';
+        var svg = d3.select(map).append("svg")
                 .attr("width", diameter)
                 .attr("height", diameter)
                 .append("g")
@@ -274,14 +274,23 @@ First map in glyconnect
                 .attr('stroke-width', link_width);
 
         // outer nodes
-
         var onode = svg.append('g').selectAll(".outer_node")
                 .data(data.outer)
                 .enter().append("g")
                 .attr("class", "outer_node")
                 .attr("transform", function(d) { return "rotate(" + (d.x - 90) + ")translate(" + d.y + ")"; })
-                .on("mouseover", mouseover)
-                .on("mouseout", mouseout);
+                .on("mouseover", this.mouseover)
+                .on("mouseout", this.mouseout)
+                .on("click", function(e){
+                  if(e.name.indexOf("P") != -1){
+                    that.changePage= "protein";
+                    //that.proteinId = '';
+                  }
+                  if(e.name.indexOf("S") != -1){
+                    that.changePage = 'structure';
+                    //that.structureId = '';
+                  }
+                });
 
         onode.append("circle")
                 .attr('id', function(d) { return d.id })
@@ -305,8 +314,8 @@ First map in glyconnect
                 .enter().append("g")
                 .attr("class", "inner_node")
                 .attr("transform", function(d, i) { return "translate(" + d.x + "," + d.y + ")"})
-                .on("mouseover", mouseover)
-                .on("mouseout", mouseout);
+                .on("mouseover", this.mouseover)
+                .on("mouseout", this.mouseout);
 
         inode.append('rect')
                 .attr('width', rect_width)
@@ -324,36 +333,61 @@ First map in glyconnect
 
         d3.select(self.frameElement).style("height", diameter - 150 + "px");
 
-        function mouseover(d)
+      },
+
+      mouseover: function (d) {
+
+        d3.selectAll('.links .link').sort(function(a, b){ return d.related_links.indexOf(a.id); });
+
+        for (var i = 0; i < d.related_nodes.length; i++)
         {
-          // bring to front
-          d3.selectAll('.links .link').sort(function(a, b){ return d.related_links.indexOf(a.id); });
-
-          for (var i = 0; i < d.related_nodes.length; i++)
-          {
-            d3.select('#' + d.related_nodes[i]).classed('highlight', true);
-            d3.select('#' + d.related_nodes[i] + '-txt').attr("font-weight", 'bold');
-          }
-
-          for (var i = 0; i < d.related_links.length; i++)
-            d3.select('#' + d.related_links[i]).attr('stroke-width', '5px');
+          d3.select(Polymer.dom(this.farthestViewportElement).querySelector('#' + d.related_nodes[i])).classed('highlight', true);
+          d3.select(Polymer.dom(this.farthestViewportElement).querySelector('#' + d.related_nodes[i] + '-txt')).attr("font-weight", 'bold');
         }
 
-        function mouseout(d)
-        {
-          for (var i = 0; i < d.related_nodes.length; i++)
-          {
-            d3.select('#' + d.related_nodes[i]).classed('highlight', false);
-            d3.select('#' + d.related_nodes[i] + '-txt').attr("font-weight", 'normal');
-          }
+        for (var i = 0; i < d.related_links.length; i++)
+          d3.select(Polymer.dom(this.farthestViewportElement).querySelector('#' + d.related_links[i])).attr('stroke-width', '5px');
+      },
 
-          for (var i = 0; i < d.related_links.length; i++)
-            d3.select('#' + d.related_links[i]).attr('stroke-width', link_width);
+      mouseout:function (d) {
+
+        for (var i = 0; i < d.related_nodes.length; i++)
+        {
+          d3.select(Polymer.dom(this.farthestViewportElement).querySelector('#' + d.related_nodes[i])).classed('highlight', false);
+          d3.select(Polymer.dom(this.farthestViewportElement).querySelector('#' + d.related_nodes[i] + '-txt')).attr("font-weight", 'normal');
         }
+
+        for (var i = 0; i < d.related_links.length; i++)
+          d3.select(Polymer.dom(this.farthestViewportElement).querySelector('#' + d.related_links[i])).attr('stroke-width', '1px');
+
+      },
+
+
+      compositionToString: function(composition){
+        var outputString = '';
+        if(composition.charAt(0) != "0"){
+          outputString += 'H'+composition.charAt(0);
+        }
+        if(composition.charAt(1) != "0"){
+          outputString += 'N'+composition.charAt(1);
+        }
+        if(composition.charAt(2) != "0"){
+          outputString += 'F'+composition.charAt(2);
+        }
+        if(composition.charAt(3) != "0"){
+          outputString += 'S'+composition.charAt(3);
+        }
+        if(composition.charAt(4) != "0"){
+          outputString += 'G'+composition.charAt(4);
+        }
+        if(composition.charAt(5) != "0"){
+          outputString += 's'+composition.charAt(5);
+        }
+        if(composition.charAt(6) != "0"){
+          outputString += 'p'+composition.charAt(6)
+        }
+        return outputString;
       }
-
-
-
     });
   </script>
 </dom-module>
