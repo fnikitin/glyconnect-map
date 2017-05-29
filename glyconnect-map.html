@@ -71,12 +71,30 @@ First map in glyconnect
           type: Object,
           reflectToAttribute: true,
           observer: 'createOctopus'
+        },
+        structureId: {
+          type: String,
+          reflectToAttribute: true,
+          notify: true
+        },
+        proteinId: {
+          type: String,
+          reflectToAttribute: true,
+          notify: true
         }
       },
 
 
       createOctopus: function(){
+        var map = this.$.map;
+        map.innerHTML = '';
 
+        if(this.octData == undefined || this.octData == ''){
+          var img = document.createElement('img');
+          img.src = this.resolveUrl('./img/octopusGlyconnect.png');
+          Polymer.dom(map).appendChild(img);
+          return;
+        }
         // Way to force polymer to apply style to D3 svg.
         this.scopeSubtree(this.$.map, true);
         var that = this;
@@ -85,9 +103,17 @@ First map in glyconnect
           var singleArray = [];
           if(!this.octData[i].proteins){
             this.octData[i].proteins = []
+          } else {
+            for(var j=0;j<this.octData[i].proteins.length;j++){
+              this.octData[i].proteins[j]="P"+this.octData[i].proteins[j];
+            }
           }
           if(!this.octData[i].structures){
             this.octData[i].structures = []
+          } else {
+            for(var j=0;j<this.octData[i].structures.length;j++){
+              this.octData[i].structures[j]="S"+this.octData[i].structures[j];
+            }
           }
           singleArray.push(this.compositionToString(this.octData[i].composition));
           singleArray.push(this.octData[i].structures);
@@ -254,8 +280,7 @@ First map in glyconnect
                   "y": d.outer.x > 180 ? d.inner.x : d.inner.x + rect_width}; })
                 .projection(function(d) { return [d.y, d.x]; });
 
-        var map = this.$.map;
-        map.innerHTML = '';
+
         var svg = d3.select(map).append("svg")
                 .attr("width", diameter)
                 .attr("height", diameter)
@@ -284,11 +309,11 @@ First map in glyconnect
                 .on("click", function(e){
                   if(e.name.indexOf("P") != -1){
                     that.changePage= "protein";
-                    //that.proteinId = '';
+                    that.proteinId = e.name.substring(1);
                   }
                   if(e.name.indexOf("S") != -1){
                     that.changePage = 'structure';
-                    //that.structureId = '';
+                    that.structureId = e.name.substring(1);
                   }
                 });
 
