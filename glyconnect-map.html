@@ -406,10 +406,19 @@ First map in glyconnect
           outputString += 'G'+composition.charAt(4);
         }
         if(composition.charAt(5) != "0"){
-          outputString += 's'+composition.charAt(5);
+          outputString += 'P'+composition.charAt(5);
         }
         if(composition.charAt(6) != "0"){
-          outputString += 'p'+composition.charAt(6)
+          outputString += 's'+composition.charAt(6);
+        }
+        if(composition.charAt(7) != "0"){
+          outputString += 'p'+composition.charAt(7)
+        }
+        if(composition.charAt(11) != "0"){
+          outputString += 'm'+composition.charAt(11)
+        }
+        if(composition.charAt(12) != "0"){
+          outputString += 'a'+composition.charAt(11)
         }
         return outputString;
       }
