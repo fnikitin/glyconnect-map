@@ -68,7 +68,7 @@ First map in glyconnect
             reflectToAttribute: true
           },
           octData: {
-            type: Object,
+            type: Array,
             reflectToAttribute: true,
             observer: 'createOctopus'
           },
@@ -89,14 +89,14 @@ First map in glyconnect
         var map = this.$.map;
         map.innerHTML = '';
 
-        if(this.octData == undefined || this.octData == ''){
+        if(this.octData === undefined || this.octData === ''){
           var img = document.createElement('img');
           img.src = this.resolveUrl('./img/octopusGlyconnect.png');
           Polymer.dom(map).appendChild(img);
           return;
         }
         // Way to force polymer to apply style to D3 svg.
-        this.scopeSubtree(this.$.map, true);
+
         var that = this;
         var data = [];
         for(var i = 0; i < this.octData.length; i++){
@@ -139,10 +139,10 @@ First map in glyconnect
 
         data.forEach(function(d){
 
-          if (d == null)
+          if (d === null)
             return;
 
-          i = { id: 'i' + inner.length, name: d[0], related_links: [] };
+          var i = { id: 'i' + inner.length, name: d[0], related_links: [] };
           i.related_nodes = [i.id];
           inner.push(i);
 
@@ -151,9 +151,9 @@ First map in glyconnect
           //outer left
           d[1].forEach(function(d1){
 
-            o = outerRight.get(d1);
+           var o = outerRight.get(d1);
 
-            if (o == null)
+            if (o === null)
             {
               o = { name: d1,	id: 'o' + outerId[0], related_links: [] };
               o.related_nodes = [o.id];
@@ -163,7 +163,7 @@ First map in glyconnect
             }
 
             // create the links
-            l = { id: 'l-' + i.id + '-' + o.id, inner: i, outer: o }
+            var l = { id: 'l-' + i.id + '-' + o.id, inner: i, outer: o }
             links.push(l);
 
             // and the relationships
@@ -172,24 +172,23 @@ First map in glyconnect
             o.related_nodes.push(i.id);
             o.related_links.push(l.id);
           });
+
           //outer right
           if (!Array.isArray(d[2]))
             d[1] = [d[1]];
           d[2].forEach(function(d1){
 
-            o = outerLeft.get(d1);
+            var o = outerLeft.get(d1);
 
-            if (o == null)
-            {
+            if (o === null) {
               o = { name: d1,	id: 'o' + outerId[0], related_links: [] };
               o.related_nodes = [o.id];
               outerId[0] = outerId[0] + 1;
-
               outerLeft.set(d1, o);
             }
 
             // create the links
-            l = { id: 'l-' + i.id + '-' + o.id, inner: i, outer: o }
+            var l = { id: 'l-' + i.id + '-' + o.id, inner: i, outer: o };
             links.push(l);
 
             // and the relationships
@@ -228,7 +227,7 @@ First map in glyconnect
                 .domain([0, il])
                 .range([-(il * rect_height)/2, (il * rect_height)/2]);
 
-        mid = data.outerLeft.length;
+        var mid = data.outerLeft.length;
         var outer_x = d3.scale.linear()
                 .domain([0, mid, mid, data.outerRight.length+data.outerLeft.length])
                 .range([15, 170, 190 ,355]);
@@ -390,34 +389,34 @@ First map in glyconnect
 
       compositionToString(composition){
         var outputString = '';
-        if(composition.charAt(0) != "0"){
+        if(composition.charAt(0) !== "0"){
           outputString += 'H'+composition.charAt(0);
         }
-        if(composition.charAt(1) != "0"){
+        if(composition.charAt(1) !== "0"){
           outputString += 'N'+composition.charAt(1);
         }
-        if(composition.charAt(2) != "0"){
+        if(composition.charAt(2) !== "0"){
           outputString += 'F'+composition.charAt(2);
         }
-        if(composition.charAt(3) != "0"){
+        if(composition.charAt(3) !== "0"){
           outputString += 'S'+composition.charAt(3);
         }
-        if(composition.charAt(4) != "0"){
+        if(composition.charAt(4) !== "0"){
           outputString += 'G'+composition.charAt(4);
         }
-        if(composition.charAt(5) != "0"){
+        if(composition.charAt(5) !== "0"){
           outputString += 'P'+composition.charAt(5);
         }
-        if(composition.charAt(6) != "0"){
+        if(composition.charAt(6) !== "0"){
           outputString += 's'+composition.charAt(6);
         }
-        if(composition.charAt(7) != "0"){
+        if(composition.charAt(7) !== "0"){
           outputString += 'p'+composition.charAt(7)
         }
-        if(composition.charAt(11) != "0"){
+        if(composition.charAt(11) !== "0"){
           outputString += 'm'+composition.charAt(11)
         }
-        if(composition.charAt(12) != "0"){
+        if(composition.charAt(12) !== "0"){
           outputString += 'a'+composition.charAt(11)
         }
         return outputString;

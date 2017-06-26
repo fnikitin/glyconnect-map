@@ -2,6 +2,7 @@
   "name": "glyconnect-map",
   "description": "First map in glyconnect",
   "main": "glyconnect-map.html",
+  "version": "2.0.0",
   "dependencies": {
     "polymer": "Polymer/polymer#^2.0.0-rc.2"
   },
