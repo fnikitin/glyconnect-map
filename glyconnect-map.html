@@ -54,6 +54,13 @@ First map in glyconnect
       }
     </style>
     <div id="map" style="display:block; margin:auto"></div>
+
+    <iron-ajax
+            id="request"
+            url="http://mendel.isb-sib.ch:8083/api/glycosylations"
+            handle-as="json"
+            last-response="{{responseData}}"
+            on-response="createOctopus"></iron-ajax>
   </template>
 
   <script>
@@ -62,15 +69,15 @@ First map in glyconnect
       static get is() { return 'glyconnect-map'; }
       static get properties() {
         return {
-          changePage: {
+          pageType: {
             type: String,
             notify: true,
             reflectToAttribute: true
           },
-          octData: {
+          filterData: {
             type: Array,
             reflectToAttribute: true,
-            observer: 'createOctopus'
+            observer: '_makeRequest'
           },
           structureId: {
             type: String,
@@ -85,11 +92,20 @@ First map in glyconnect
         };
       }
 
+      _makeRequest(filterData){
+        if(filterData !== undefined){
+          var request = this.$.request;
+          request.set( 'params', this.octData);
+          request.generateRequest();
+        }
+      }
+
+
       createOctopus(){
         var map = this.$.map;
         map.innerHTML = '';
 
-        if(this.octData === undefined || this.octData === ''){
+        if(this.responseData === undefined || this.responseData === '' || this.responseData.length === 0){
           var img = document.createElement('img');
           img.src = this.resolveUrl('./img/octopusGlyconnect.png');
           Polymer.dom(map).appendChild(img);
@@ -99,25 +115,25 @@ First map in glyconnect
 
         var that = this;
         var data = [];
-        for(var i = 0; i < this.octData.length; i++){
+        for(var i = 0; i < this.responseData.length; i++){
           var singleArray = [];
-          if(!this.octData[i].proteins){
-            this.octData[i].proteins = []
+          if(!this.responseData[i].proteins){
+            this.responseData[i].proteins = []
           } else {
-            for(var j=0;j<this.octData[i].proteins.length;j++){
-              this.octData[i].proteins[j]="P"+this.octData[i].proteins[j];
+            for(var j=0;j<this.responseData[i].proteins.length;j++){
+              this.responseData[i].proteins[j]="P"+this.responseData[i].proteins[j];
             }
           }
-          if(!this.octData[i].structures){
-            this.octData[i].structures = []
+          if(!this.responseData[i].structures){
+            this.responseData[i].structures = []
           } else {
-            for(var j=0;j<this.octData[i].structures.length;j++){
-              this.octData[i].structures[j]="S"+this.octData[i].structures[j];
+            for(var j=0;j<this.responseData[i].structures.length;j++){
+              this.responseData[i].structures[j]="S"+this.responseData[i].structures[j];
             }
           }
-          singleArray.push(this.compositionToString(this.octData[i].composition));
-          singleArray.push(this.octData[i].structures);
-          singleArray.push(this.octData[i].proteins);
+          singleArray.push(this.compositionToString(this.responseData[i].composition));
+          singleArray.push(this.responseData[i].structures);
+          singleArray.push(this.responseData[i].proteins);
           data.push(singleArray);
         }
 
@@ -139,7 +155,7 @@ First map in glyconnect
 
         data.forEach(function(d){
 
-          if (d === null)
+          if (d == null)
             return;
 
           var i = { id: 'i' + inner.length, name: d[0], related_links: [] };
@@ -151,9 +167,9 @@ First map in glyconnect
           //outer left
           d[1].forEach(function(d1){
 
-           var o = outerRight.get(d1);
+            var o = outerRight.get(d1);
 
-            if (o === null)
+            if (o == null)
             {
               o = { name: d1,	id: 'o' + outerId[0], related_links: [] };
               o.related_nodes = [o.id];
@@ -180,7 +196,7 @@ First map in glyconnect
 
             var o = outerLeft.get(d1);
 
-            if (o === null) {
+            if (o == null) {
               o = { name: d1,	id: 'o' + outerId[0], related_links: [] };
               o.related_nodes = [o.id];
               outerId[0] = outerId[0] + 1;
@@ -211,9 +227,9 @@ First map in glyconnect
         // This product includes color specifications and designs developed by Cynthia Brewer (http://colorbrewer.org/).
         var colors = ["#a50026","#d73027","#f46d43","#fdae61","#fee090","#ffffbf","#e0f3f8","#abd9e9","#74add1","#4575b4","#313695"]
         var color = d3.scale.linear()
-                .domain([60, 220])
-                .range([colors.length-1, 0])
-                .clamp(true);
+            .domain([60, 220])
+            .range([colors.length-1, 0])
+            .clamp(true);
 
         var diameter = 960;
         var rect_width = 40;
@@ -224,13 +240,13 @@ First map in glyconnect
         var il = data.inner.length;
 
         var inner_y = d3.scale.linear()
-                .domain([0, il])
-                .range([-(il * rect_height)/2, (il * rect_height)/2]);
+            .domain([0, il])
+            .range([-(il * rect_height)/2, (il * rect_height)/2]);
 
         var mid = data.outerLeft.length;
         var outer_x = d3.scale.linear()
-                .domain([0, mid, mid, data.outerRight.length+data.outerLeft.length])
-                .range([15, 170, 190 ,355]);
+            .domain([0, mid, mid, data.outerRight.length+data.outerLeft.length])
+            .range([15, 170, 190 ,355]);
 
 
         // setup positioning
@@ -273,85 +289,85 @@ First map in glyconnect
         }
 
         var diagonal = d3.svg.diagonal()
-                .source(function(d) { return {"x": d.outer.y * Math.cos(projectX(d.outer.x)),
-                  "y": -d.outer.y * Math.sin(projectX(d.outer.x))}; })
-                .target(function(d) { return {"x": d.inner.y + rect_height/2,
-                  "y": d.outer.x > 180 ? d.inner.x : d.inner.x + rect_width}; })
-                .projection(function(d) { return [d.y, d.x]; });
+            .source(function(d) { return {"x": d.outer.y * Math.cos(projectX(d.outer.x)),
+              "y": -d.outer.y * Math.sin(projectX(d.outer.x))}; })
+            .target(function(d) { return {"x": d.inner.y + rect_height/2,
+              "y": d.outer.x > 180 ? d.inner.x : d.inner.x + rect_width}; })
+            .projection(function(d) { return [d.y, d.x]; });
 
 
         var svg = d3.select(map).append("svg")
-                .attr("width", diameter)
-                .attr("height", diameter)
-                .append("g")
-                .attr("transform", "translate(" + diameter / 2 + "," + diameter / 2 + ")");
+            .attr("width", diameter)
+            .attr("height", diameter)
+            .append("g")
+            .attr("transform", "translate(" + diameter / 2 + "," + diameter / 2 + ")");
 
 
         // links
         var link = svg.append('g').attr('class', 'links').selectAll(".link")
-                .data(data.links)
-                .enter().append('path')
-                .attr('class', 'link')
-                .attr('id', function(d) { return d.id })
-                .attr("d", diagonal)
-                .attr('stroke', function(d) { return get_color(d.inner.name); })
-                .attr('stroke-width', link_width);
+            .data(data.links)
+            .enter().append('path')
+            .attr('class', 'link')
+            .attr('id', function(d) { return d.id })
+            .attr("d", diagonal)
+            .attr('stroke', function(d) { return get_color(d.inner.name); })
+            .attr('stroke-width', link_width);
 
         // outer nodes
         var onode = svg.append('g').selectAll(".outer_node")
-                .data(data.outer)
-                .enter().append("g")
-                .attr("class", "outer_node")
-                .attr("transform", function(d) { return "rotate(" + (d.x - 90) + ")translate(" + d.y + ")"; })
-                .on("mouseover", this.mouseover)
-                .on("mouseout", this.mouseout)
-                .on("click", function(e){
-                  if(e.name.indexOf("P") != -1){
-                    that.changePage= "protein";
-                    that.proteinId = e.name.substring(1);
-                  }
-                  if(e.name.indexOf("S") != -1){
-                    that.changePage = 'structure';
-                    that.structureId = e.name.substring(1);
-                  }
-                });
+            .data(data.outer)
+            .enter().append("g")
+            .attr("class", "outer_node")
+            .attr("transform", function(d) { return "rotate(" + (d.x - 90) + ")translate(" + d.y + ")"; })
+            .on("mouseover", this.mouseover)
+            .on("mouseout", this.mouseout)
+            .on("click", function(e){
+              if(e.name.indexOf("P") != -1){
+                that.pageType= "protein";
+                that.proteinId = e.name.substring(1);
+              }
+              if(e.name.indexOf("S") != -1){
+                that.pageType = 'glycan';
+                that.structureId = e.name.substring(1);
+              }
+            });
 
         onode.append("circle")
-                .attr('id', function(d) { return d.id })
-                .attr("r", 4.5);
+            .attr('id', function(d) { return d.id })
+            .attr("r", 4.5);
 
         onode.append("circle")
-                .attr('r', 20)
-                .attr('visibility', 'hidden');
+            .attr('r', 20)
+            .attr('visibility', 'hidden');
 
         onode.append("text")
-                .attr('id', function(d) { return d.id + '-txt'; })
-                .attr("dy", ".31em")
-                .attr("text-anchor", function(d) { return d.x < 180 ? "start" : "end"; })
-                .attr("transform", function(d) { return d.x < 180 ? "translate(8)" : "rotate(180)translate(-8)"; })
-                .text(function(d) { return d.name; });
+            .attr('id', function(d) { return d.id + '-txt'; })
+            .attr("dy", ".31em")
+            .attr("text-anchor", function(d) { return d.x < 180 ? "start" : "end"; })
+            .attr("transform", function(d) { return d.x < 180 ? "translate(8)" : "rotate(180)translate(-8)"; })
+            .text(function(d) { return d.name; });
 
         // inner nodes
 
         var inode = svg.append('g').selectAll(".inner_node")
-                .data(data.inner)
-                .enter().append("g")
-                .attr("class", "inner_node")
-                .attr("transform", function(d, i) { return "translate(" + d.x + "," + d.y + ")"})
-                .on("mouseover", this.mouseover)
-                .on("mouseout", this.mouseout);
+            .data(data.inner)
+            .enter().append("g")
+            .attr("class", "inner_node")
+            .attr("transform", function(d, i) { return "translate(" + d.x + "," + d.y + ")"})
+            .on("mouseover", this.mouseover)
+            .on("mouseout", this.mouseout);
 
         inode.append('rect')
-                .attr('width', rect_width)
-                .attr('height', rect_height)
-                .attr('id', function(d) { return d.id; })
-                .attr('fill', function(d) { return get_color(d.name); });
+            .attr('width', rect_width)
+            .attr('height', rect_height)
+            .attr('id', function(d) { return d.id; })
+            .attr('fill', function(d) { return get_color(d.name); });
 
         inode.append("text")
-                .attr('id', function(d) { return d.id + '-txt'; })
-                .attr('text-anchor', 'middle')
-                .attr("transform", "translate(" + rect_width/2 + ", " + rect_height * .75 + ")")
-                .text(function(d) { return d.name; });
+            .attr('id', function(d) { return d.id + '-txt'; })
+            .attr('text-anchor', 'middle')
+            .attr("transform", "translate(" + rect_width/2 + ", " + rect_height * .75 + ")")
+            .text(function(d) { return d.name; });
 
         // need to specify x/y/etc
 
