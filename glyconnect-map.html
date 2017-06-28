@@ -95,7 +95,7 @@ First map in glyconnect
       _makeRequest(filterData){
         if(filterData !== undefined){
           var request = this.$.request;
-          request.set( 'params', this.octData);
+          request.set( 'params', filterData);
           request.generateRequest();
         }
       }
