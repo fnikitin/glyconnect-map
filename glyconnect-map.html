@@ -59,7 +59,6 @@ First map in glyconnect
             id="request"
             url="http://mendel.isb-sib.ch:8083/api/glycosylations"
             handle-as="json"
-            last-response="{{responseData}}"
             on-response="createOctopus"></iron-ajax>
   </template>
 
@@ -101,11 +100,13 @@ First map in glyconnect
       }
 
 
-      createOctopus(){
+      createOctopus(data){
+        var responseData = data.detail.response;
+
         var map = this.$.map;
         map.innerHTML = '';
 
-        if(this.responseData === undefined || this.responseData === '' || this.responseData.length === 0){
+        if(responseData === undefined || responseData === '' || responseData.length === 0){
           var img = document.createElement('img');
           img.src = this.resolveUrl('./img/octopusGlyconnect.png');
           Polymer.dom(map).appendChild(img);
@@ -115,25 +116,25 @@ First map in glyconnect
 
         var that = this;
         var data = [];
-        for(var i = 0; i < this.responseData.length; i++){
+        for(var i = 0; i < responseData.length; i++){
           var singleArray = [];
-          if(!this.responseData[i].proteins){
-            this.responseData[i].proteins = []
+          if(!responseData[i].proteins){
+            responseData[i].proteins = []
           } else {
-            for(var j=0;j<this.responseData[i].proteins.length;j++){
-              this.responseData[i].proteins[j]="P"+this.responseData[i].proteins[j];
+            for(var j=0;j<responseData[i].proteins.length;j++){
+              responseData[i].proteins[j]="P"+responseData[i].proteins[j];
             }
           }
-          if(!this.responseData[i].structures){
-            this.responseData[i].structures = []
+          if(!responseData[i].structures){
+            responseData[i].structures = []
           } else {
-            for(var j=0;j<this.responseData[i].structures.length;j++){
-              this.responseData[i].structures[j]="S"+this.responseData[i].structures[j];
+            for(var j=0;j<responseData[i].structures.length;j++){
+              responseData[i].structures[j]="S"+responseData[i].structures[j];
             }
           }
-          singleArray.push(this.compositionToString(this.responseData[i].composition));
-          singleArray.push(this.responseData[i].structures);
-          singleArray.push(this.responseData[i].proteins);
+          singleArray.push(this.compositionToString(responseData[i].composition));
+          singleArray.push(responseData[i].structures);
+          singleArray.push(responseData[i].proteins);
           data.push(singleArray);
         }
 
