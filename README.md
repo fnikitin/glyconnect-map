@@ -1,5 +1,4 @@
-# \<element-2\>
-
+# \<glyconnect-map\>
 a
 
 ## Install the Polymer-CLI
