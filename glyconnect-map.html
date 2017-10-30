@@ -50,6 +50,10 @@ First map in glyconnect
         fill: none;
       }
 
+      .clicked {
+        stroke: steelblue;
+        stroke-width: 4px;
+      }
 
     </style>
     <div id="map" style="display:block; margin:auto"></div>
@@ -109,6 +113,7 @@ First map in glyconnect
           var img = document.createElement('img');
           img.src = this.resolveUrl('./img/octopusGlyconnect.png');
           Polymer.dom(map).appendChild(img);
+          map.scrollIntoView({block: "start", behavior: "smooth"});
           return;
         }
         // Way to force polymer to apply style to D3 svg.
@@ -232,8 +237,8 @@ First map in glyconnect
             .clamp(true);
 
         var diameter = 960;
-        var rect_width = 40;
-        var rect_height = 14;
+        var rect_width = 70;
+        var rect_height = 20;
 
         var link_width = "1px";
 
@@ -355,7 +360,8 @@ First map in glyconnect
             .attr("class", "inner_node")
             .attr("transform", function(d, i) { return "translate(" + d.x + "," + d.y + ")"})
             .on("mouseover", this.mouseover)
-            .on("mouseout", this.mouseout);
+            .on("mouseout", this.mouseout)
+            .on("click", this.click);
 
         inode.append('rect')
             .attr('width', rect_width)
@@ -375,6 +381,20 @@ First map in glyconnect
         map.scrollIntoView({block: "start", behavior: "smooth"});
 
       }
+
+      click(d) {
+
+        for (var i = 0; i < d.related_links.length; i++) {
+          var link = d3.select(Polymer.dom(this.farthestViewportElement).querySelector('#' + d.related_links[i]))
+          if (link.classed('clicked')) {
+            link.classed('clicked', false);
+          } else {
+            link.classed('clicked', true);
+          }
+        }
+      }
+
+
 
       mouseover(d) {
 
