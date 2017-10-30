@@ -55,8 +55,21 @@ First map in glyconnect
         stroke-width: 4px;
       }
 
+      .center {
+        display:block;
+        margin:auto;
+      }
+
+      .hidden {
+        display: none;
+      }
+
     </style>
-    <div id="map" style="display:block; margin:auto"></div>
+    <div id="map" class="center"></div>
+
+    <div id="nores" class$="{{noResClass}}">
+      <img src="{{octopusImg}}" />
+    </div>
 
     <iron-ajax
             id="request"
@@ -94,6 +107,11 @@ First map in glyconnect
         };
       }
 
+      connectedCallback(){
+        this.octopusImg = this.resolveUrl('./img/octopusGlyconnect.png');
+        this.noResClass = 'hidden center';
+      }
+
       _makeRequest(filterData){
         if(filterData !== undefined){
           var request = this.$.request;
@@ -102,17 +120,15 @@ First map in glyconnect
         }
       }
 
-
       createOctopus(data){
+        this.octopusImg = this.resolveUrl('./img/octopusGlyconnect.png');
         var responseData = data.detail.response;
-
+        this.noResClass = 'hidden center';
         var map = this.$.map;
         map.innerHTML = '';
 
         if(responseData === undefined || responseData === '' || responseData.length === 0){
-          var img = document.createElement('img');
-          img.src = this.resolveUrl('./img/octopusGlyconnect.png');
-          Polymer.dom(map).appendChild(img);
+          this.noResClass = 'center';
           map.scrollIntoView({block: "start", behavior: "smooth"});
           return;
         }
