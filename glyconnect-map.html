@@ -3,7 +3,6 @@
 <!--
 `glyconnect-map`
 First map in glyconnect
-
 @demo demo/index.html
 -->
 
@@ -73,7 +72,7 @@ First map in glyconnect
 
     <iron-ajax
             id="request"
-            url="http://mendel.isb-sib.ch:8083/api/glycosylations"
+            url="{{apiServer}}/api/glycosylations"
             handle-as="json"
             on-response="createOctopus"></iron-ajax>
   </template>
@@ -90,7 +89,7 @@ First map in glyconnect
             reflectToAttribute: true
           },
           filterData: {
-            type: Array,
+            type: Object,
             reflectToAttribute: true,
             observer: '_makeRequest'
           },
@@ -103,6 +102,9 @@ First map in glyconnect
             type: String,
             reflectToAttribute: true,
             notify: true
+          },
+          apiServer:{
+            type:String
           }
         };
       }
@@ -343,11 +345,14 @@ First map in glyconnect
             .on("mouseover", this.mouseover)
             .on("mouseout", this.mouseout)
             .on("click", function(e){
-              if(e.name.indexOf("P") != -1){
+              if(e.name.indexOf("P") !== -1){
+                //Force proteinId to change
+                that.proteinId = undefined;
                 that.pageType= "protein";
                 that.proteinId = e.name.substring(1);
               }
-              if(e.name.indexOf("S") != -1){
+              if(e.name.indexOf("S") !== -1){
+                that.structureId = undefined;
                 that.pageType = 'glycan';
                 that.structureId = e.name.substring(1);
               }
