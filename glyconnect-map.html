@@ -446,36 +446,37 @@ First map in glyconnect
 
 
       compositionToString(composition){
+        var tokens = composition.split(',');
         var outputString = '';
-        if(composition.charAt(0) !== "0"){
-          outputString += 'H'+composition.charAt(0);
+        if (tokens[0] !== "0") {
+          outputString += 'H' + tokens[0];
         }
-        if(composition.charAt(1) !== "0"){
-          outputString += 'N'+composition.charAt(1);
+        if (tokens[1] !== "0") {
+          outputString += 'N' + tokens[1];
         }
-        if(composition.charAt(2) !== "0"){
-          outputString += 'F'+composition.charAt(2);
+        if (tokens[2] !== "0") {
+          outputString += 'F' + tokens[2];
         }
-        if(composition.charAt(3) !== "0"){
-          outputString += 'S'+composition.charAt(3);
+        if (tokens[3] !== "0") {
+          outputString += 'S' + tokens[3];
         }
-        if(composition.charAt(4) !== "0"){
-          outputString += 'G'+composition.charAt(4);
+        if (tokens[4] !== "0") {
+          outputString += 'G' + tokens[4];
         }
-        if(composition.charAt(5) !== "0"){
-          outputString += 'P'+composition.charAt(5);
+        if (tokens[5] !== "0") {
+          outputString += 'P' + tokens[5];
         }
-        if(composition.charAt(6) !== "0"){
-          outputString += 's'+composition.charAt(6);
+        if (tokens[6] !== "0") {
+          outputString += 's' + tokens[6];
         }
-        if(composition.charAt(7) !== "0"){
-          outputString += 'p'+composition.charAt(7)
+        if (tokens[7] !== "0") {
+          outputString += 'p' + tokens[7];
         }
-        if(composition.charAt(11) !== "0"){
-          outputString += 'm'+composition.charAt(11)
+        if (tokens[11] !== "0") {
+          outputString += 'm' + tokens[11];
         }
-        if(composition.charAt(12) !== "0"){
-          outputString += 'a'+composition.charAt(12)
+        if (tokens[12] !== "0") {
+          outputString += 'a' + tokens[12];
         }
         return outputString;
       }
