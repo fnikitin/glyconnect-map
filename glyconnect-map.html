@@ -74,7 +74,9 @@ First map in glyconnect
             id="request"
             url="{{apiServer}}/api/glycosylations"
             handle-as="json"
-            on-response="createOctopus"></iron-ajax>
+            on-response="createOctopus"
+            on-error="handleError"
+    ></iron-ajax>
   </template>
 
   <script>
@@ -120,6 +122,16 @@ First map in glyconnect
           request.set( 'params', filterData);
           request.generateRequest();
         }
+      }
+
+      handleError(){
+
+        //Todo: handle 500 or error in the connection!
+        this.octopusImg = this.resolveUrl('./img/octopusGlyconnect.png');
+        var map = this.$.map;
+        map.innerHTML = '';
+        this.noResClass = 'center';
+        map.scrollIntoView({block: "start", behavior: "smooth"});
       }
 
       createOctopus(data){
