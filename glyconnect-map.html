@@ -72,7 +72,7 @@ First map in glyconnect
 
     <iron-ajax
             id="request"
-            url="{{apiServer}}/api/glycosylations"
+            url="{{apiServer}}/api/compositions"
             handle-as="json"
             on-response="createOctopus"
             on-error="handleError"
@@ -146,41 +146,8 @@ First map in glyconnect
           map.scrollIntoView({block: "start", behavior: "smooth"});
           return;
         }
-        // Way to force polymer to apply style to D3 svg.
 
         var that = this;
-        var data = [];
-        for(var i = 0; i < responseData.length; i++){
-          var singleArray = [];
-          if(!responseData[i].proteins){
-            responseData[i].proteins = []
-          } else {
-            for(var j=0;j<responseData[i].proteins.length;j++){
-              responseData[i].proteins[j]="P"+responseData[i].proteins[j];
-            }
-          }
-          if(!responseData[i].structures){
-            responseData[i].structures = []
-          } else {
-            for(var j=0;j<responseData[i].structures.length;j++){
-              responseData[i].structures[j]="S"+responseData[i].structures[j];
-            }
-          }
-          singleArray.push(this.compositionToString(responseData[i].composition));
-          singleArray.push(responseData[i].structures);
-          singleArray.push(responseData[i].proteins);
-          data.push(singleArray);
-        }
-
-        // transform the data into a useful representation
-        // 1 is inner, 2, is outer
-
-        // need: inner, outer, links
-        //
-        // inner:
-        // links: { inner: outer: }
-
-
         var outerLeft = d3.map();
         var outerRight = d3.map();
         var inner = [];
@@ -188,69 +155,78 @@ First map in glyconnect
 
         var outerId = [0];
 
-        data.forEach(function(d){
-
+        responseData.forEach(function(d) {
+          // Inner
           if (d == null)
             return;
 
-          var i = { id: 'i' + inner.length, name: d[0], related_links: [] };
+          var i = {id: 'i' + inner.length, name: that.compositionToString(d.composition), related_links: []};
           i.related_nodes = [i.id];
           inner.push(i);
 
-          if (!Array.isArray(d[1]))
-            d[1] = [d[1]];
+          if (d.proteins) {
+            //outer right
+            d.proteins.forEach(function (d1) {
+
+              var o = outerRight.get(d1.id);
+
+              if (o == null) {
+                var name;
+                if(d1.uniprot && d1.uniprot.length >1){
+                  name = 'Complex_'+d1.uniprot[0];
+                }
+                if(d1.uniprot && d1.uniprot.length === 1){
+                  name = d1.uniprot[0];
+                }
+                if(!d1.uniprot){
+                  name = 'Protein_'+d1.id;
+                }
+                o = {protein_id: d1.id, id: 'o' + outerId[0], name: name, type:'protein', related_links: []};
+                o.related_nodes = [o.id];
+                outerId[0] = outerId[0] + 1;
+
+                outerRight.set(d1.id, o);
+              }
+
+              // create the links
+              var l = {id: 'l-' + i.id + '-' + o.id, inner: i, outer: o}
+              links.push(l);
+
+              // and the relationships
+              i.related_nodes.push(o.id);
+              i.related_links.push(l.id);
+              o.related_nodes.push(i.id);
+              o.related_links.push(l.id);
+            });
+          }
+
           //outer left
-          d[1].forEach(function(d1){
+          if(d.structures){
+            d.structures.forEach(function (d1) {
 
-            var o = outerRight.get(d1);
+              var o = outerLeft.get(d1);
 
-            if (o == null)
-            {
-              o = { name: d1,	id: 'o' + outerId[0], related_links: [] };
-              o.related_nodes = [o.id];
-              outerId[0] = outerId[0] + 1;
+              if (o == null) {
+                o = {structure_id: d1, name: 'S' + d1, id: 'o' + outerId[0], type: 'glycan', related_links: []};
+                o.related_nodes = [o.id];
+                outerId[0] = outerId[0] + 1;
+                outerLeft.set(d1, o);
+              }
 
-              outerRight.set(d1, o);
-            }
+              // create the links
+              var l = {id: 'l-' + i.id + '-' + o.id, inner: i, outer: o};
+              links.push(l);
 
-            // create the links
-            var l = { id: 'l-' + i.id + '-' + o.id, inner: i, outer: o }
-            links.push(l);
-
-            // and the relationships
-            i.related_nodes.push(o.id);
-            i.related_links.push(l.id);
-            o.related_nodes.push(i.id);
-            o.related_links.push(l.id);
-          });
-
-          //outer right
-          if (!Array.isArray(d[2]))
-            d[1] = [d[1]];
-          d[2].forEach(function(d1){
-
-            var o = outerLeft.get(d1);
-
-            if (o == null) {
-              o = { name: d1,	id: 'o' + outerId[0], related_links: [] };
-              o.related_nodes = [o.id];
-              outerId[0] = outerId[0] + 1;
-              outerLeft.set(d1, o);
-            }
-
-            // create the links
-            var l = { id: 'l-' + i.id + '-' + o.id, inner: i, outer: o };
-            links.push(l);
-
-            // and the relationships
-            i.related_nodes.push(o.id);
-            i.related_links.push(l.id);
-            o.related_nodes.push(i.id);
-            o.related_links.push(l.id);
-          });
+              // and the relationships
+              i.related_nodes.push(o.id);
+              i.related_links.push(l.id);
+              o.related_nodes.push(i.id);
+              o.related_links.push(l.id);
+            });
+          }
         });
 
-        data = {
+        var data = {
           inner: inner,
           outerLeft: outerLeft.values(),
           outerRight: outerRight.values(),
@@ -357,16 +333,14 @@ First map in glyconnect
             .on("mouseover", this.mouseover)
             .on("mouseout", this.mouseout)
             .on("click", function(e){
-              if(e.name.indexOf("P") !== -1){
+              that.pageType = e.type;
+              if(e.type === 'protein'){
                 //Force proteinId to change
                 that.proteinId = undefined;
-                that.pageType= "protein";
-                that.proteinId = e.name.substring(1);
-              }
-              if(e.name.indexOf("S") !== -1){
+                that.proteinId = e.protein_id;
+              } else {
                 that.structureId = undefined;
-                that.pageType = 'glycan';
-                that.structureId = e.name.substring(1);
+                that.structureId = e.structure_id;
               }
             });
 
