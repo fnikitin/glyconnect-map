@@ -1,5 +1,6 @@
 <link rel="import" href="../polymer/polymer-element.html">
 <link rel="import" href="../lib-d3/lib-d3.html">
+<link rel="import" href="../iron-flex-layout/iron-flex-layout-classes.html">
 <!--
 `glyconnect-map`
 First map in glyconnect
@@ -62,9 +63,14 @@ First map in glyconnect
       .hidden {
         display: none;
       }
+      .materialCard {
+          margin: 20px;
+          background: #eeeeee;
+          @apply --paper-material-elevation-2;
+      }
 
     </style>
-    <div>Number of protein:{{protNumber}} Number of compositions: {{compoNumber}} Number of structures: {{structureNumber}}</div>
+    <div class="layout materialCard flex">Number of protein:{{protNumber}} Number of compositions: {{compoNumber}} Number of structures: {{structureNumber}}</div>
     <div id="map" class="center"></div>
 
     <div id="nores" class$="{{noResClass}}">
