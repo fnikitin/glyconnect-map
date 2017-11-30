@@ -1,7 +1,6 @@
 <link rel="import" href="../polymer/polymer-element.html">
 <link rel="import" href="../lib-d3/lib-d3.html">
 <link rel="import" href="../iron-flex-layout/iron-flex-layout-classes.html">
-<link rel="import" href="../paper-styles/element-styles/paper-material-styles.html">
 <!--
 `glyconnect-map`
 First map in glyconnect
@@ -10,7 +9,7 @@ First map in glyconnect
 
 <dom-module id="glyconnect-map">
   <template>
-    <style>
+    <style is="custom-style" include="iron-flex iron-flex-alignment">
       :host {
         display: block;
       }
@@ -79,12 +78,18 @@ First map in glyconnect
           flex: 0 0 auto;
           color: white;
       }
+      .orange{
+        background-color:#ff9900;
+      }
+      .green{
+        background-color:#009933;
+      }
     </style>
     <div class="layout materialCard flex">
-      <div style='padding-left:55px'>
+      <div class='layout horizontal center-justified'>
         <paper-card class="card">Number of proteins:&nbsp;{{protNumber}}</paper-card>
-        <paper-card class="card" style="background-color:#ff9900">Number of compositions:&nbsp;{{compoNumber}}</paper-card>
-        <paper-card class="card" style="background-color:#009933">Number of structures:&nbsp;{{structureNumber}}</paper-card>
+        <paper-card class="card orange">Number of compositions:&nbsp;{{compoNumber}}</paper-card>
+        <paper-card class="card green">Number of structures:&nbsp;{{structureNumber}}</paper-card>
       </div>
     </div>
     <div id="map" class="center"></div>
