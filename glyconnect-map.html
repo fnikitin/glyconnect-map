@@ -68,9 +68,16 @@ First map in glyconnect
           background: #eeeeee;
           @apply --paper-material-elevation-2;
       }
+      .counter{
+          padding: 5px;
+          @apply(--layout-horizontal);
+          @apply(--layout-wrap);
+          min-height: 100px;
+          align-items: right;
+      }
 
     </style>
-    <div class="layout materialCard flex">Number of protein:{{protNumber}} Number of compositions: {{compoNumber}} Number of structures: {{structureNumber}}</div>
+    <div class="layout materialCard flex counter">Number of protein:{{protNumber}} Number of compositions: {{compoNumber}} Number of structures: {{structureNumber}}</div>
     <div id="map" class="center"></div>
 
     <div id="nores" class$="{{noResClass}}">
