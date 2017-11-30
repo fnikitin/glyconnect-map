@@ -1,6 +1,7 @@
 <link rel="import" href="../polymer/polymer-element.html">
 <link rel="import" href="../lib-d3/lib-d3.html">
 <link rel="import" href="../iron-flex-layout/iron-flex-layout-classes.html">
+<link rel="import" href="../paper-styles/element-styles/paper-material-styles.html">
 <!--
 `glyconnect-map`
 First map in glyconnect
@@ -64,20 +65,28 @@ First map in glyconnect
         display: none;
       }
       .materialCard {
-          margin: 20px;
+          margin-left: 100px;
+          margin-right: 100px;
           background: #eeeeee;
           @apply --paper-material-elevation-2;
       }
-      .counter{
-          padding: 5px;
-          @apply(--layout-horizontal);
-          @apply(--layout-wrap);
-          min-height: 100px;
-          align-items: right;
+      .card {
+          background-color: #cc3300;
+          font-size: 16px;
+          /*font-weight: 400;*/
+          padding: 15px 15px 15px 15px;
+          margin: 10px;
+          flex: 0 0 auto;
+          color: white;
       }
-
     </style>
-    <div class="layout materialCard flex counter">Number of protein:{{protNumber}} Number of compositions: {{compoNumber}} Number of structures: {{structureNumber}}</div>
+    <div class="layout materialCard flex">
+      <div style='padding-left:55px'>
+        <paper-card class="card">Number of protein:&nbsp;{{protNumber}}</paper-card>
+        <paper-card class="card" style="background-color:#ff9900">Number of composition:&nbsp;{{compoNumber}}</paper-card>
+        <paper-card class="card" style="background-color:#009933">Number of structure:&nbsp;{{structureNumber}}</paper-card>
+      </div>
+    </div>
     <div id="map" class="center"></div>
 
     <div id="nores" class$="{{noResClass}}">
@@ -118,6 +127,18 @@ First map in glyconnect
             type: String,
             reflectToAttribute: true,
             notify: true
+          },
+          protNumber: {
+            type: Number,
+            value: 0,
+          },
+          compoNumber: {
+            type: Number,
+            value: 0,
+          },
+          structureNumber: {
+            type: Number,
+            value: 0,
           },
           apiServer:{
             type:String
@@ -245,7 +266,6 @@ First map in glyconnect
         var data = {
           inner: inner,
           outerLeft: outerLeft.values(),
-
           outerRight: outerRight.values(),
           links: links
         }
