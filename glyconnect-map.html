@@ -64,6 +64,7 @@ First map in glyconnect
       }
 
     </style>
+    <div>Number of protein:{{protNumber}} Number of compositions: {{compoNumber}} Number of structures: {{structureNumber}}</div>
     <div id="map" class="center"></div>
 
     <div id="nores" class$="{{noResClass}}">
@@ -225,10 +226,13 @@ First map in glyconnect
             });
           }
         });
-
+        that.protNumber = outerLeft.lenght();
+        that.structureNumber = outerRight.lenght();
+        that.compoNumber = inner.lenght();
         var data = {
           inner: inner,
           outerLeft: outerLeft.values(),
+
           outerRight: outerRight.values(),
           links: links
         }
@@ -249,12 +253,15 @@ First map in glyconnect
         var link_width = "1px";
 
         var il = data.inner.length;
+        console.log(il);
 
         var inner_y = d3.scale.linear()
             .domain([0, il])
             .range([-(il * rect_height)/2, (il * rect_height)/2]);
 
         var mid = data.outerLeft.length;
+        console.log(mid);
+        console.log(data.outerRight.length);
         var outer_x = d3.scale.linear()
             .domain([0, mid, mid, data.outerRight.length+data.outerLeft.length])
             .range([15, 170, 190 ,355]);
