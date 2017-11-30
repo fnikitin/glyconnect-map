@@ -85,7 +85,7 @@ First map in glyconnect
         background-color:#009933;
       }
     </style>
-    <div class="layout materialCard flex">
+    <div id="counter" class="layout materialCard flex">
       <div class='layout horizontal center-justified'>
         <paper-card class="card">Number of proteins:&nbsp;{{protNumber}}</paper-card>
         <paper-card class="card orange">Number of compositions:&nbsp;{{compoNumber}}</paper-card>
@@ -137,20 +137,12 @@ First map in glyconnect
             type: Number,
             value: 0,
           },
-          compoNumber: {
-            type: Number,
-            value: 0,
-          },
-          structureNumber: {
-            type: Number,
-            value: 0,
-          },
-          apiServer:{
-            type:String
-          }
         };
       }
-
+      ready() {
+       super.ready();
+       Polymer.dom(this.root).querySelector('#counter').hidden=true;
+      }
       connectedCallback(){
         this.octopusImg = this.resolveUrl('./img/octopusGlyconnect.png');
         this.noResClass = 'hidden center';
@@ -165,7 +157,6 @@ First map in glyconnect
       }
 
       handleError(){
-
         //Todo: handle 500 or error in the connection!
         this.octopusImg = this.resolveUrl('./img/octopusGlyconnect.png');
         var map = this.$.map;
@@ -175,6 +166,7 @@ First map in glyconnect
       }
 
       createOctopus(data){
+        Polymer.dom(this.root).querySelector('#counter').hidden=false;
         this.octopusImg = this.resolveUrl('./img/octopusGlyconnect.png');
         var responseData = data.detail.response;
         this.noResClass = 'hidden center';
@@ -182,6 +174,7 @@ First map in glyconnect
         map.innerHTML = '';
 
         if(responseData === undefined || responseData === '' || responseData.length === 0){
+          Polymer.dom(this.root).querySelector('#counter').hidden=true;
           this.noResClass = 'center';
           map.scrollIntoView({block: "start", behavior: "smooth"});
           return;
