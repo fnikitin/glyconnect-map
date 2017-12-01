@@ -79,17 +79,20 @@ First map in glyconnect
           color: white;
       }
       .orange{
-        background-color:#ff9900;
+        background-color:#f89406;
       }
-      .green{
-        background-color:#009933;
+      .blue{
+        background-color:#018FD5;
+      }
+      .purple{
+        background-color:#5d6bd5;
       }
     </style>
     <div id="counter" class="layout materialCard flex">
       <div class='layout horizontal center-justified'>
-        <paper-card class="card">Number of proteins:&nbsp;{{protNumber}}</paper-card>
-        <paper-card class="card orange">Number of compositions:&nbsp;{{compoNumber}}</paper-card>
-        <paper-card class="card green">Number of structures:&nbsp;{{structureNumber}}</paper-card>
+        <paper-card class="card orange">Number of proteins:&nbsp;{{protNumber}}</paper-card>
+        <paper-card class="card purple">Number of compositions:&nbsp;{{compoNumber}}</paper-card>
+        <paper-card class="card blue">Number of structures:&nbsp;{{structureNumber}}</paper-card>
       </div>
     </div>
     <div id="map" class="center"></div>
