@@ -200,6 +200,7 @@ First map in glyconnect
         Polymer.dom(this.root).querySelector('#counter').hidden=false;
         this.octopusImg = this.resolveUrl('./img/octopusGlyconnect.png');
         var responseData = data.detail.response;
+        console.log(responseData);
         this.noResClass = 'hidden center';
         var map = this.$.map;
         map.innerHTML = '';
@@ -223,8 +224,7 @@ First map in glyconnect
           // Inner
           if (d == null)
             return;
-          var compoToForw = that.d.composition;
-          console.log(compoToForw);
+
           var i = {id: 'i' + inner.length, name: that.compositionToString(d.composition), related_links: []};
           i.related_nodes = [i.id];
           inner.push(i);
