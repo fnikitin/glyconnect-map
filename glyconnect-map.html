@@ -165,6 +165,9 @@ First map in glyconnect
             type: Number,
             value: 0,
           },
+          componnect : {
+            type: Array
+          }
         };
       }
       ready() {
@@ -220,7 +223,8 @@ First map in glyconnect
           // Inner
           if (d == null)
             return;
-
+          var compoToForw = that.compositionToString(d.composition);
+          console.log(compoToForw);
           var i = {id: 'i' + inner.length, name: that.compositionToString(d.composition), related_links: []};
           i.related_nodes = [i.id];
           inner.push(i);
