@@ -1,6 +1,7 @@
 <link rel="import" href="../polymer/polymer-element.html">
 <link rel="import" href="../lib-d3/lib-d3.html">
 <link rel="import" href="../iron-flex-layout/iron-flex-layout-classes.html">
+<link rel="import" href="../paper-button/paper-button.html">
 <!--
 `glyconnect-map`
 First map in glyconnect
@@ -90,6 +91,17 @@ First map in glyconnect
       #counter{
         background-color: white;
       }
+      paper-button.indigo {
+          background-color: var(--paper-indigo-500);
+          color: white;
+          --paper-button-raised-keyboard-focus: {
+              color: white !important;
+          };
+      }
+      paper-button.updateButton {
+          margin: 13px;
+          font-size: 16px;
+      }
     </style>
     <div id="counter" class="layout materialCard flex">
       <div class='layout horizontal center-justified'>
@@ -98,6 +110,9 @@ First map in glyconnect
         <paper-card class="card blue">Number of structures:&nbsp;{{structureNumber}}</paper-card>
       </div>
     </div>
+    <div class="horizontal end-justified layout">
+      <paper-button class="indigo updateButton" id="align" raised on-tap="">Align glycosites by GlycoSiteAlign</paper-button>
+   </div>
     <div id="map" class="center"></div>
 
     <div id="nores" class$="{{noResClass}}">
@@ -110,6 +125,13 @@ First map in glyconnect
             handle-as="json"
             on-response="createOctopus"
             on-error="handleError"
+    ></iron-ajax>
+    <iron-ajax
+      id="compoConnect"
+      url="/glycositealign/compoConnect/False/20"
+      handle-as="json"
+      on-response="redirect"
+      on-error="handleError"
     ></iron-ajax>
   </template>
 
