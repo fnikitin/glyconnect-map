@@ -223,7 +223,7 @@ First map in glyconnect
           // Inner
           if (d == null)
             return;
-          var compoToForw = that.compositionToString(d.composition);
+          var compoToForw = that.d.composition;
           console.log(compoToForw);
           var i = {id: 'i' + inner.length, name: that.compositionToString(d.composition), related_links: []};
           i.related_nodes = [i.id];
