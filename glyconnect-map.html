@@ -103,7 +103,7 @@ First map in glyconnect
           font-size: 16px;
       }
     </style>
-    <div id="counter" class="layout materialCard flex">
+    <div id="counter" class="layout materialCard flex">sendRequest
       <div class='layout horizontal center-justified'>
         <paper-card class="card orange">Number of proteins:&nbsp;{{protNumber}}</paper-card>
         <paper-card class="card purple">Number of compositions:&nbsp;{{compoNumber}}</paper-card>
@@ -111,7 +111,7 @@ First map in glyconnect
       </div>
     </div>
     <div class="horizontal end-justified layout">
-      <paper-button class="indigo updateButton" id="align" raised on-tap="sendRequest(http://127.0.0.1:5000/compoConnect)">Align glycosites by GlycoSiteAlign</paper-button>
+      <paper-button class="indigo updateButton" id="align" raised on-tap="gsaRequest">Align glycosites by GlycoSiteAlign</paper-button>
    </div>
     <div id="map" class="center"></div>
 
@@ -126,13 +126,8 @@ First map in glyconnect
             on-response="createOctopus"
             on-error="handleError"
     ></iron-ajax>
-    <iron-ajax
-      id="compoConnect"
-      url="/glycositealign/compoConnect/False/20"
-      params=componnect
-      method= "POST"
-      handle-as="json"
-    ></iron-ajax>
+    <form id="gsaForm" action="http://127.0.0.1:5000/compoConnect" method="POST"></form>
+
   </template>
 
   <script>
@@ -141,6 +136,10 @@ First map in glyconnect
       static get is() { return 'glyconnect-map'; }
       static get properties() {
         return {
+          gsaServer:{
+            type: String,
+            value: "http://127.0.0.1:5000/compoConnect"
+          },
           pageType: {
             type: String,
             notify: true,
@@ -195,19 +194,20 @@ First map in glyconnect
         this.noResClass = 'center';
         map.scrollIntoView({block: "start", behavior: "smooth"});
       }
-      sendRequest(url){
-        var form = document.createElement('form');
-        document.body.appendChild(form);
-        // form.method = 'post';
-        form.action = url;
-        for (var name in this.componnect) {
-           var input = document.createElement('input');
-           input.type = 'hidden';
-           input.name = name;
-           input.value = data[name];
-           form.appendChild(input);
+      gsaRequest(){
+        var ccList = [];
+        for (var cc in this.componnect) {
+          ccList.push(this.componnect[cc]);
         }
-        form.submit();
+        console.log(ccList);
+        var form = this.$.gsaForm;
+          var input = document.createElement('input');
+         input.type = 'hidden';
+         input.name = "dataGc";
+         input.value = JSON.stringify(ccList);
+         form.appendChild(input);
+         form.submit();
+
       }
       createOctopus(data){
         Polymer.dom(this.root).querySelector('#counter').hidden=false;
@@ -336,7 +336,6 @@ First map in glyconnect
         var link_width = "1px";
 
         var il = data.inner.length;
-        console.log(il);
 
         var inner_y = d3.scale.linear()
             .domain([0, il])
