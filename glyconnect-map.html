@@ -110,14 +110,15 @@ First map in glyconnect
         <paper-card class="card blue">Number of structures:&nbsp;{{structureNumber}}</paper-card>
       </div>
     </div>
-    <div class="horizontal end-justified layout">
-      <paper-button class="indigo updateButton" id="align" raised on-tap="gsaRequest">Align glycosites by GlycoSiteAlign</paper-button>
-   </div>
+
     <div id="map" class="center"></div>
 
     <div id="nores" class$="{{noResClass}}">
       <img src="{{octopusImg}}" />
     </div>
+    <div class="horizontal center-justified layout">
+      <paper-button class="indigo updateButton" id="align" raised on-tap="gsaRequest">Align glycosites by GlycoSiteAlign</paper-button>
+   </div>
 
     <iron-ajax
             id="request"
@@ -126,7 +127,7 @@ First map in glyconnect
             on-response="createOctopus"
             on-error="handleError"
     ></iron-ajax>
-    <form id="gsaForm" action="http://127.0.0.1:5000/compoConnect" method="POST"></form>
+    <form id="gsaForm" action="http://glycoproteome.expasy.org/glycositealign/compoConnect" method="POST"></form>
 
   </template>
 
@@ -138,7 +139,7 @@ First map in glyconnect
         return {
           gsaServer:{
             type: String,
-            value: "http://127.0.0.1:5000/compoConnect"
+            value: "http://glycoproteome.expasy.org/glycositealign/compoConnect"
           },
           pageType: {
             type: String,
@@ -172,6 +173,7 @@ First map in glyconnect
       ready() {
        super.ready();
        Polymer.dom(this.root).querySelector('#counter').hidden=true;
+       Polymer.dom(this.root).querySelector('#align').hidden=true;
       }
       connectedCallback(){
         this.octopusImg = this.resolveUrl('./img/octopusGlyconnect.png');
@@ -199,7 +201,6 @@ First map in glyconnect
         for (var cc in this.componnect) {
           ccList.push(this.componnect[cc]);
         }
-        console.log(ccList);
         var form = this.$.gsaForm;
           var input = document.createElement('input');
          input.type = 'hidden';
@@ -210,6 +211,7 @@ First map in glyconnect
 
       }
       createOctopus(data){
+        Polymer.dom(this.root).querySelector('#align').hidden=false;
         Polymer.dom(this.root).querySelector('#counter').hidden=false;
         this.octopusImg = this.resolveUrl('./img/octopusGlyconnect.png');
         var responseData = data.detail.response;
@@ -220,7 +222,6 @@ First map in glyconnect
           compConArray[toS]=comFrom;
         };
         this.componnect = compConArray;
-        console.log(this.componnect);
         this.noResClass = 'hidden center';
         var map = this.$.map;
         map.innerHTML = '';
@@ -342,8 +343,6 @@ First map in glyconnect
             .range([-(il * rect_height)/2, (il * rect_height)/2]);
 
         var mid = data.outerLeft.length;
-        console.log(mid);
-        console.log(data.outerRight.length);
         var outer_x = d3.scale.linear()
             .domain([0, mid, mid, data.outerRight.length+data.outerLeft.length])
             .range([15, 170, 190 ,355]);
