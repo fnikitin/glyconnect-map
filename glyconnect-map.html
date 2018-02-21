@@ -116,6 +116,7 @@ First map in glyconnect
     <div id="nores" class$="{{noResClass}}">
       <img src="{{octopusImg}}" />
     </div>
+
     <div class="horizontal center-justified layout">
       <paper-button class="indigo updateButton" id="align" raised on-tap="gsaRequest">Align glycosites by GlycoSiteAlign</paper-button>
    </div>
@@ -137,10 +138,6 @@ First map in glyconnect
       static get is() { return 'glyconnect-map'; }
       static get properties() {
         return {
-          gsaServer:{
-            type: String,
-            value: "http://glycoproteome.expasy.org/glycositealign/compoConnect"
-          },
           pageType: {
             type: String,
             notify: true,
@@ -163,18 +160,20 @@ First map in glyconnect
           },
           protNumber: {
             type: Number,
-            value: 0,
+            value: 0
           },
           componnect : {
             type: Object
           }
         };
       }
+
       ready() {
        super.ready();
        Polymer.dom(this.root).querySelector('#counter').hidden=true;
        Polymer.dom(this.root).querySelector('#align').hidden=true;
       }
+
       connectedCallback(){
         this.octopusImg = this.resolveUrl('./img/octopusGlyconnect.png');
         this.noResClass = 'hidden center';
@@ -196,20 +195,21 @@ First map in glyconnect
         this.noResClass = 'center';
         map.scrollIntoView({block: "start", behavior: "smooth"});
       }
+
       gsaRequest(){
         var ccList = [];
         for (var cc in this.componnect) {
           ccList.push(this.componnect[cc]);
         }
         var form = this.$.gsaForm;
-          var input = document.createElement('input');
-         input.type = 'hidden';
-         input.name = "dataGc";
-         input.value = JSON.stringify(ccList);
-         form.appendChild(input);
-         form.submit();
-
+        var input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = "dataGc";
+        input.value = JSON.stringify(ccList);
+        form.appendChild(input);
+        form.submit();
       }
+
       createOctopus(data){
         Polymer.dom(this.root).querySelector('#align').hidden=false;
         Polymer.dom(this.root).querySelector('#counter').hidden=false;
