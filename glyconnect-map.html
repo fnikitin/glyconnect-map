@@ -2,6 +2,8 @@
 <link rel="import" href="../lib-d3/lib-d3.html">
 <link rel="import" href="../iron-flex-layout/iron-flex-layout-classes.html">
 <link rel="import" href="../paper-button/paper-button.html">
+<link rel="import" href="../paper-tabs/paper-tab.html">
+<link rel="import" href="../paper-tabs/paper-tabs.html">
 <!--
 `glyconnect-map`
 First map in glyconnect
@@ -65,19 +67,19 @@ First map in glyconnect
         display: none;
       }
       .materialCard {
-          margin-left: 100px;
-          margin-right: 100px;
-          background: #eeeeee;
-          @apply --paper-material-elevation-2;
+        margin-left: 100px;
+        margin-right: 100px;
+        background: #eeeeee;
+        @apply --paper-material-elevation-2;
       }
       .card {
-          background-color: #cc3300;
-          font-size: 16px;
-          /*font-weight: 400;*/
-          padding: 15px 15px 15px 15px;
-          margin: 10px;
-          flex: 0 0 auto;
-          color: white;
+        background-color: #cc3300;
+        font-size: 16px;
+        /*font-weight: 400;*/
+        padding: 15px 15px 15px 15px;
+        margin: 10px;
+        flex: 0 0 auto;
+        color: white;
       }
       .orange{
         background-color:#f89406;
@@ -92,22 +94,55 @@ First map in glyconnect
         background-color: white;
       }
       paper-button.indigo {
-          background-color: var(--paper-indigo-500);
-          color: white;
-          --paper-button-raised-keyboard-focus: {
-              color: white !important;
-          };
+        background-color: var(--paper-indigo-500);
+        color: white;
+        --paper-button-raised-keyboard-focus: {
+          color: white !important;
+        };
       }
       paper-button.updateButton {
-          margin: 13px;
-          font-size: 16px;
+        margin: 13px;
+        font-size: 16px;
+      }
+
+      paper-tabs {
+        --paper-tabs-selection-bar-color: #eee;
+        margin-bottom: 15px;
+        background-color: #eeeeee;
+        color: black;
+        font-size: 16px;
+        font-weight: 600;
+        box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 1px 5px 0 rgba(0, 0, 0, 0.12), 0 3px 1px -2px rgba(0, 0, 0, 0.2);
+      }
+
+      paper-tab.iron-selected {
+        background-color: var(--paper-indigo-500);
+        color: white;
+      }
+
+      paper-tab.iron-selected span{
+        color: white;
+      }
+
+      paper-tab span {
+        text-decoration: none;
+        color: black;
       }
     </style>
-    <div id="counter" class="layout materialCard flex">sendRequest
+    <paper-tabs id="tabOctopus" class="hidden" selected="{{selected}}" attr-for-selected="name" fallback-selection="protStruct" on-iron-select="onTabSelect" >
+      <paper-tab name="proteins-structures" ><span class="layout horizontal center center-justified">Proteins - Glycans</span></paper-tab>
+      <paper-tab name="proteins-taxonomy"><span class="layout horizontal center center-justified">Proteins - Taxonomy</span></paper-tab>
+      <paper-tab name="proteins-diseases"><span class="layout horizontal center center-justified">Proteins - Diseases </span></paper-tab>
+      <paper-tab name="diseases-structures"><span class="layout horizontal center center-justified">Diseases - Glycans</span></paper-tab>
+      <paper-tab name="tissues-diseases"><span class="layout horizontal center center-justified">Tissue - Disease </span></paper-tab>
+      <paper-tab name="tissues-structures"><span class="layout horizontal center center-justified">Tissues - Glycans</span></paper-tab>
+    </paper-tabs>
+
+    <div id="counter" class="layout materialCard flex" hidden>
       <div class='layout horizontal center-justified'>
-        <paper-card class="card orange">Number of proteins:&nbsp;{{protNumber}}</paper-card>
+        <paper-card class="card orange">Number of {{leftSide}}:&nbsp;{{leftNumber}}</paper-card>
         <paper-card class="card purple">Number of compositions:&nbsp;{{compoNumber}}</paper-card>
-        <paper-card class="card blue">Number of structures:&nbsp;{{structureNumber}}</paper-card>
+        <paper-card class="card blue">Number of {{rightSide}}:&nbsp;{{rightNumber}}</paper-card>
       </div>
     </div>
 
@@ -118,17 +153,17 @@ First map in glyconnect
     </div>
 
     <div class="horizontal center-justified layout">
-      <paper-button class="indigo updateButton" id="align" raised on-tap="gsaRequest">Align glycosites by GlycoSiteAlign</paper-button>
-   </div>
-
+      <paper-button id="align" class="indigo updateButton" raised on-tap="gsaRequest" hidden>Align glycosites by GlycoSiteAlign</paper-button>
+      <a id="downloadResults" download="results.json" href="" hidden><paper-button class="indigo updateButton" raised >Download Results</paper-button></a>
+    </div>
+    <!--url="{{apiServer}}/api/compositions"-->
     <iron-ajax
             id="request"
-            url="{{apiServer}}/api/compositions"
             handle-as="json"
             on-response="createOctopus"
             on-error="handleError"
     ></iron-ajax>
-    <form id="gsaForm" action="http://glycoproteome.expasy.org/glycositealign/compoConnect" method="POST"></form>
+    <form id="gsaForm" action="https://glycoproteome.expasy.org/glycositealign/compoConnect" method="POST"></form>
 
   </template>
 
@@ -164,14 +199,16 @@ First map in glyconnect
           },
           componnect : {
             type: Object
+          },
+          apiServer: {
+            type: String,
+            reflectToAttribute: true
+          },
+          selected: {
+            type: String,
+            value: 'proteins-structures'
           }
-        };
-      }
-
-      ready() {
-       super.ready();
-       Polymer.dom(this.root).querySelector('#counter').hidden=true;
-       Polymer.dom(this.root).querySelector('#align').hidden=true;
+        }
       }
 
       connectedCallback(){
@@ -181,19 +218,26 @@ First map in glyconnect
 
       _makeRequest(filterData){
         if(filterData !== undefined){
+          this.$.tabOctopus.classList.remove('hidden');
           var request = this.$.request;
+          request.url = 'http://mendel.isb-sib.ch:8083/api/compositions/'+this.leftSide+'-'+this.rightSide;
           request.set( 'params', filterData);
           request.generateRequest();
         }
       }
 
       handleError(){
+        this.$.align.hidden=true;
+        this.$.counter.hidden=true;
+        this.$.downloadResults.hidden=true;
+
         //Todo: handle 500 or error in the connection!
         this.octopusImg = this.resolveUrl('./img/octopusGlyconnect.png');
         var map = this.$.map;
         map.innerHTML = '';
         this.noResClass = 'center';
         map.scrollIntoView({block: "start", behavior: "smooth"});
+        this.$.downloadResults.href="";
       }
 
       gsaRequest(){
@@ -210,17 +254,23 @@ First map in glyconnect
         form.submit();
       }
 
-      createOctopus(data){
-        Polymer.dom(this.root).querySelector('#align').hidden=false;
-        Polymer.dom(this.root).querySelector('#counter').hidden=false;
+      createOctopus(callData){
+
+        this.$.align.hidden=false;
+        this.$.counter.hidden=false;
+        this.$.downloadResults.hidden=false;
+
         this.octopusImg = this.resolveUrl('./img/octopusGlyconnect.png');
-        var responseData = data.detail.response;
+        var responseData = callData.detail.response;
+        console.log(JSON.stringify(responseData));
+        this.$.downloadResults.setAttribute("href", "data:text/json;charset=utf-8,"+JSON.stringify(responseData));
         var compConArray = {};
         for (var b = 0; b < responseData.length; b++){
           var toS = b.toString();
           var comFrom = responseData[b]['composition'];
           compConArray[toS]=comFrom;
-        };
+        }
+
         this.componnect = compConArray;
         this.noResClass = 'hidden center';
         var map = this.$.map;
@@ -239,88 +289,107 @@ First map in glyconnect
         var inner = [];
         var links = [];
 
-        var outerId = [0];
+        var outerId = 0;
 
         responseData.forEach(function(d) {
-          // Inner
           if (d == null)
             return;
 
-          var i = {id: 'i' + inner.length, name: that.compositionToString(d.composition), related_links: []};
-          i.related_nodes = [i.id];
-          inner.push(i);
+          //Composition inner list
+          var composition = {id: 'i' + inner.length, name: that.compositionToString(d.composition), related_links: []};
+          composition.related_nodes = [composition.id];
+          inner.push(composition);
 
-          if (d.proteins) {
-            //outer right
-            d.proteins.forEach(function (d1) {
+          for (var key in d) {
+            if(key == 'composition'){
+              continue;
+            }
+            for(var counter=0; counter < d[key].length; counter++){
+              var d1 = d[key][counter];
+              var o;
+              switch (key) {
+                case 'proteins':
+                  o = outerLeft.get(d1.id);
+                  if (o == null) {
+                    o = that.proteinObjectGenerator(d1,outerId,'protein');
+                    o.related_nodes = [o.id];
+                    outerId++;
+                    outerLeft.set(d1.id, o);
+                  }
+                  break;
 
-              var o = outerRight.get(d1.id);
+                case 'structures':
+                  o = outerRight.get(d1);
+                  if (o == null) {
+                    o = that.glycanObjectGenerator(d1,outerId,'glycan');
+                    o.related_nodes = [o.id];
+                    outerId++;
+                    outerRight.set(d1, o);
+                  }
+                  break;
 
-              if (o == null) {
-                var name;
-                if(d1.uniprot && d1.uniprot.length >1){
-                  name = 'Complex_'+d1.uniprot[0];
-                }
-                if(d1.uniprot && d1.uniprot.length === 1){
-                  name = d1.uniprot[0];
-                }
-                if(!d1.uniprot){
-                  name = 'Protein_'+d1.id;
-                }
-                o = {protein_id: d1.id, id: 'o' + outerId[0], name: name, type:'protein', related_links: []};
-                o.related_nodes = [o.id];
-                outerId[0] = outerId[0] + 1;
+                case 'tissues':
+                  o = outerLeft.get(d1.id);
+                  if (o == null) {
+                    o = that.tissueObjectGenerator(d1,outerId,'tissue');
+                    o.related_nodes = [o.id];
+                    outerId++;
+                    outerLeft.set(d1.id, o);
+                  }
+                  break;
 
-                outerRight.set(d1.id, o);
+                case 'taxonomy':
+                  o = outerRight.get(d1.id);
+                  if (o == null) {
+                    o = that.taxonomyObjectGenerator(d1,outerId,'taxonomy');
+                    o.related_nodes = [o.id];
+                    outerId++;
+                    outerRight.set(d1.id, o);
+                  }
+                  break;
+
+                case 'diseases':
+                  var map;
+
+                  if(d.structures){
+                    map = outerLeft;
+                  } else {
+                    map = outerRight;
+                  }
+
+                  o = map.get(d1.id);
+                  if (o == null) {
+                    o = that.diseaseObjectGenerator(d1,outerId,'disease');
+                    o.related_nodes = [o.id];
+                    outerId++;
+                    map.set(d1.id, o);
+                  }
+                  break;
               }
 
               // create the links
-              var l = {id: 'l-' + i.id + '-' + o.id, inner: i, outer: o}
+              var l = {id: 'l-' + composition.id + '-' + o.id, inner: composition, outer: o};
               links.push(l);
 
               // and the relationships
-              i.related_nodes.push(o.id);
-              i.related_links.push(l.id);
-              o.related_nodes.push(i.id);
+              composition.related_nodes.push(o.id);
+              composition.related_links.push(l.id);
+              o.related_nodes.push(composition.id);
               o.related_links.push(l.id);
-            });
-          }
-
-          //outer left
-          if(d.structures){
-            d.structures.forEach(function (d1) {
-
-              var o = outerLeft.get(d1);
-
-              if (o == null) {
-                o = {structure_id: d1, name: 'S' + d1, id: 'o' + outerId[0], type: 'glycan', related_links: []};
-                o.related_nodes = [o.id];
-                outerId[0] = outerId[0] + 1;
-                outerLeft.set(d1, o);
-              }
-
-              // create the links
-              var l = {id: 'l-' + i.id + '-' + o.id, inner: i, outer: o};
-              links.push(l);
-
-              // and the relationships
-              i.related_nodes.push(o.id);
-              i.related_links.push(l.id);
-              o.related_nodes.push(i.id);
-              o.related_links.push(l.id);
-            });
+            }
           }
         });
-        that.protNumber = outerRight.values().length;
-        that.structureNumber = outerLeft.values().length;
-        that.compoNumber = inner.length;
+
+        this.leftNumber = outerLeft.values().length;
+        this.rightNumber = outerRight.values().length;
+        this.compoNumber = inner.length;
+
         var data = {
           inner: inner,
           outerLeft: outerLeft.values(),
           outerRight: outerRight.values(),
           links: links
-        }
-
+        };
 
         // from d3 colorbrewer:
         // This product includes color specifications and designs developed by Cynthia Brewer (http://colorbrewer.org/).
@@ -342,26 +411,28 @@ First map in glyconnect
             .domain([0, il])
             .range([-(il * rect_height)/2, (il * rect_height)/2]);
 
-        var mid = data.outerLeft.length;
+        var mid = data.outerRight.length;
         var outer_x = d3.scale.linear()
             .domain([0, mid, mid, data.outerRight.length+data.outerLeft.length])
             .range([15, 170, 190 ,355]);
 
 
         // setup positioning
-        data.outerLeft = data.outerLeft.map(function(d, i) {
+
+        data.outerRight = data.outerRight.map(function(d, i) {
           d.x = outer_x(i);
           d.y = diameter/3;
           return d;
         });
 
-        data.outerRight = data.outerRight.map(function(d, i) {
-          d.x = outer_x(i+data.outerLeft.length);
+        data.outerLeft = data.outerLeft.map(function(d, i) {
+          d.x = outer_x(i+data.outerRight.length);
           d.y = diameter/3;
           return d;
         });
 
-        data.outer = data.outerLeft.concat(data.outerRight);
+
+        data.outer = data.outerRight.concat(data.outerLeft);
         data.inner = data.inner.map(function(d, i) {
           d.x = -(rect_width / 2);
           d.y = inner_y(i);
@@ -421,12 +492,16 @@ First map in glyconnect
             .on("mouseover", this.mouseover)
             .on("mouseout", this.mouseout)
             .on("click", function(e){
-              that.pageType = e.type;
+
               if(e.type === 'protein'){
                 //Force proteinId to change
+                that.pageType = e.type;
                 that.proteinId = undefined;
                 that.proteinId = e.protein_id;
-              } else {
+              }
+
+              if(e.type === 'glycan'){
+                that.pageType = e.type;
                 that.structureId = undefined;
                 that.structureId = e.structure_id;
               }
@@ -553,6 +628,45 @@ First map in glyconnect
           outputString += 'a' + tokens[12];
         }
         return outputString;
+      }
+
+
+      proteinObjectGenerator(protein, outerId, type){
+        var name;
+        if(protein.uniprot && protein.uniprot.length >1){
+          name = 'Complex_'+protein.uniprot[0].id;
+        }
+        if(protein.uniprot && protein.uniprot.length === 1){
+          name = protein.uniprot[0].id;
+        }
+        if(!protein.uniprot){
+          name = 'Protein_'+protein.id;
+        }
+        return {protein_id: protein.id, id: 'o' + outerId, name: name, type: type, related_links: []};
+      }
+
+      glycanObjectGenerator(glycan, outerId, type){
+        return {structure_id: glycan, name: 'S' + glycan, id: 'o' + outerId, type: type, related_links: []};
+      }
+
+      diseaseObjectGenerator(disease, outerId, type){
+        return {disease_id: disease.id, name: disease.name, id: 'o' + outerId, type: type, related_links: []};
+      }
+
+      tissueObjectGenerator(tissue, outerId, type){
+        return {tissue_id: tissue.id, name: tissue.name, id: 'o' + outerId, type: type, related_links: []};
+      }
+
+      taxonomyObjectGenerator(taxonomy, outerId, type){
+        return {taxonomy_id: taxonomy.id, name: taxonomy.species, id: 'o' + outerId, type: type, related_links: []};
+      }
+
+      onTabSelect(event) {
+        var sel =  event.target.selected;
+        var sides = sel.split('-');
+        this.leftSide = sides[0];
+        this.rightSide = sides[1];
+        this._makeRequest(this.filterData);
       }
     }
 
