@@ -220,7 +220,7 @@ First map in glyconnect
         if(filterData !== undefined){
           this.$.tabOctopus.classList.remove('hidden');
           var request = this.$.request;
-          request.url = 'http://mendel.isb-sib.ch:8083/api/compositions/'+this.leftSide+'-'+this.rightSide;
+          request.url = this.apiServer+'/api/compositions/'+this.leftSide+'-'+this.rightSide;
           request.set( 'params', filterData);
           request.generateRequest();
         }
