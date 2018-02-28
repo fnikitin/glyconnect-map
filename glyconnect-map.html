@@ -262,7 +262,7 @@ First map in glyconnect
 
         this.octopusImg = this.resolveUrl('./img/octopusGlyconnect.png');
         var responseData = callData.detail.response;
-        console.log(JSON.stringify(responseData));
+
         this.$.downloadResults.setAttribute("href", "data:text/json;charset=utf-8,"+JSON.stringify(responseData));
         var compConArray = {};
         for (var b = 0; b < responseData.length; b++){
