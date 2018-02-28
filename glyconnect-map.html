@@ -154,7 +154,7 @@ First map in glyconnect
 
     <div class="horizontal center-justified layout">
       <paper-button id="align" class="indigo updateButton" raised on-tap="gsaRequest" hidden>Align glycosites by GlycoSiteAlign</paper-button>
-      <a id="downloadResults" download="results.json" href="" hidden><paper-button class="indigo updateButton" raised >Download Results</paper-button></a>
+      <a id="downloadResults" download="results.json" href="" hidden onclick="ga('send', 'event', 'download', 'api_download', 'Data Downloaded');"><paper-button class="indigo updateButton" raised>Download Results</paper-button></a>
     </div>
     <!--url="{{apiServer}}/api/compositions"-->
     <iron-ajax
@@ -217,6 +217,7 @@ First map in glyconnect
       }
 
       _makeRequest(filterData){
+        this.$.align.hidden=true;
         if(filterData !== undefined){
           this.$.tabOctopus.classList.remove('hidden');
           var request = this.$.request;
@@ -256,7 +257,10 @@ First map in glyconnect
 
       createOctopus(callData){
 
-        this.$.align.hidden=false;
+        if(this.selected.indexOf('protein') !== -1){
+          this.$.align.hidden=false;
+        }
+
         this.$.counter.hidden=false;
         this.$.downloadResults.hidden=false;
 
@@ -505,6 +509,19 @@ First map in glyconnect
                 that.structureId = undefined;
                 that.structureId = e.structure_id;
               }
+
+              if(e.type === 'taxonomy'){
+                window.open('https://glyconnect.expasy.org/browser/taxonomy/'+e.taxonomy_id,'_blank');
+              }
+
+              if(e.type === 'tissue'){
+                window.open('https://glyconnect.expasy.org/browser/tissues/'+e.tissue_id,'_blank');
+              }
+
+              if(e.type === 'disease'){
+                window.open('https://glyconnect.expasy.org/browser/diseases/'+e.disease_id,'_blank');
+              }
+
             });
 
         onode.append("circle")
