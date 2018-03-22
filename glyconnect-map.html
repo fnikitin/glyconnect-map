@@ -7,7 +7,7 @@
 <link rel="import" href="../paper-tabs/paper-tab.html">
 <link rel="import" href="../paper-tabs/paper-tabs.html">
 <link rel="import" href="../vaadin-combo-box/vaadin-combo-box.html">
-
+<link rel="import" href="../vaadin-material-theme/vaadin-text-field.html">
 
 <!--
 `glyconnect-map`
@@ -110,6 +110,9 @@ First map in glyconnect
         font-size: 16px;
       }
 
+      vaadin-combo-box {
+        width: 300px;
+      }
       paper-tabs {
         --paper-tabs-selection-bar-color: #eee;
         margin-bottom: 15px;
@@ -158,12 +161,12 @@ First map in glyconnect
     </div>
 
     <div class="horizontal center-justified layout">
-      <paper-button id="align" class="indigo updateButton" raised on-tap="gsaRequest" hidden>Align glycosites by GlycoSiteAlign</paper-button>
       <vaadin-combo-box id="taxonomyList" label="Taxonomy Filter" items="[[taxType]]" value="{{taxSelected}}" item-value-path="species" item-label-path="species" hidden>
         <template>
           [[item.species]]
         </template>
       </vaadin-combo-box>
+      <paper-button id="align" class="indigo updateButton" raised on-tap="gsaRequest" hidden>Align glycosites by GlycoSiteAlign</paper-button>
      </div>
 
     <iron-ajax
