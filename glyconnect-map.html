@@ -184,7 +184,7 @@ First map in glyconnect
             url$="[[apiServer]]/api/taxonomies"
             handle-as="json"
             method="GET"
-            last-response="{{taxType}}">
+            on-response="fixTaxList">
     </iron-ajax>
 
     <form id="gsaForm" action="https://glycoproteome.expasy.org/glycositealign/compoConnect/" method="POST"></form>
@@ -264,6 +264,10 @@ First map in glyconnect
 
           if(taxSelected && taxSelected !== 'ALL'){
             filterData.taxonomy = taxSelected;
+          }
+
+          if(taxSelected && taxSelected == 'ALL'){
+            delete filterData.taxonomy;
           }
 
           this.$.tabOctopus.classList.remove('hidden');
@@ -724,6 +728,11 @@ First map in glyconnect
         return {taxonomy_id: taxonomy.id, name: taxonomy.species, id: 'o' + outerId, type: type, related_links: []};
       }
 
+      fixTaxList(callData){
+        var responseData = callData.detail.response;
+        responseData.push({species: 'ALL'});
+        this.taxType = responseData;
+      }
 
     }
 
