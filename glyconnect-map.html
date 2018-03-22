@@ -72,8 +72,7 @@ First map in glyconnect
         display: none;
       }
       .materialCard {
-        margin-left: 100px;
-        margin-right: 100px;
+        padding:20px;
         background: #eeeeee;
         @apply --paper-material-elevation-2;
       }
@@ -146,7 +145,16 @@ First map in glyconnect
       <paper-tab name="tissues-structures"><span class="layout horizontal center center-justified">Tissue - Glycan</span></paper-tab>
     </paper-tabs>
 
-    <div id="counter" class="layout materialCard flex" hidden>
+    <div id="filter" class="layout flex materialCard">
+      <h2>Filters</h2>
+      <vaadin-combo-box id="taxonomyList" label="Taxonomy Filter" items="[[taxType]]" value="{{taxSelected}}" item-value-path="species" item-label-path="species" hidden>
+        <template>
+          [[item.species]]
+        </template>
+      </vaadin-combo-box>
+    </div>
+
+    <div id="counter" class="layout flex" hidden>
       <div class='layout horizontal center-justified'>
         <paper-card class="card orange">Number of {{leftSide}}:&nbsp;{{leftNumber}}</paper-card>
         <paper-card class="card purple">Number of compositions:&nbsp;{{compoNumber}}</paper-card>
@@ -161,11 +169,6 @@ First map in glyconnect
     </div>
 
     <div class="horizontal center-justified layout">
-      <vaadin-combo-box id="taxonomyList" label="Taxonomy Filter" items="[[taxType]]" value="{{taxSelected}}" item-value-path="species" item-label-path="species" hidden>
-        <template>
-          [[item.species]]
-        </template>
-      </vaadin-combo-box>
       <paper-button id="align" class="indigo updateButton" raised on-tap="gsaRequest" hidden>Align glycosites by GlycoSiteAlign</paper-button>
      </div>
 
