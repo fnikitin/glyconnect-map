@@ -159,21 +159,11 @@ First map in glyconnect
 
     <div class="horizontal center-justified layout">
       <paper-button id="align" class="indigo updateButton" raised on-tap="gsaRequest" hidden>Align glycosites by GlycoSiteAlign</paper-button>
-      <vaadin-combo-box id="taxonomyList" label="Taxonomy Filter" items="[[taxType]]" value="{{taxSelected}}" item-value-path="species" item-label-path="species">
+      <vaadin-combo-box id="taxonomyList" label="Taxonomy Filter" items="[[taxType]]" value="{{taxSelected}}" item-value-path="species" item-label-path="species" hidden>
         <template>
           [[item.species]]
         </template>
       </vaadin-combo-box>
-
-
-      <!-- <paper-dropdown-menu id="taxonomyList" label="Taxonomy Filter" class="dropdown-padding" vertical-align="bottom" horizontal-align="left" hidden>
-         <paper-listbox slot="dropdown-content" class="dropdown-content" selected="{{taxSelected}}" attr-for-selected="name">
-           <paper-item name="ALL">ALL</paper-item>
-           <template is="dom-repeat" items="{{taxType}}">
-             <paper-item name="{{item.species}}">{{item.species}}</paper-item>
-           </template>
-         </paper-listbox>
-       </paper-dropdown-menu>-->
      </div>
 
     <iron-ajax
@@ -263,8 +253,6 @@ First map in glyconnect
 
       _makeRequest(filterData,taxSelected,selected){
         this.$.align.hidden=true;
-
-
         if(filterData && taxSelected && selected){
           this.changeSelectedTab(selected);
 
@@ -283,7 +271,6 @@ First map in glyconnect
       handleError(){
         this.$.align.hidden=true;
         this.$.counter.hidden=true;
-
 
         //Todo: handle 500 or error in the connection!
         this.octopusImg = this.resolveUrl('./img/octopusGlyconnect.png');
@@ -314,6 +301,7 @@ First map in glyconnect
         }
 
         this.$.counter.hidden=false;
+        this.$.taxonomyList.hidden=false;
 
 
         this.octopusImg = this.resolveUrl('./img/octopusGlyconnect.png');
@@ -332,7 +320,8 @@ First map in glyconnect
         map.innerHTML = '';
 
         if(responseData === undefined || responseData === '' || responseData.length === 0){
-          Polymer.dom(this.root).querySelector('#counter').hidden=true;
+          this.$.counter.hidden=true;
+          this.$.align.hidden=true;
           this.noResClass = 'center';
           map.scrollIntoView({block: "start", behavior: "smooth"});
           return;
