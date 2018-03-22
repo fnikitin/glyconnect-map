@@ -72,7 +72,7 @@ First map in glyconnect
         display: none;
       }
       .materialCard {
-        padding:20px;
+        padding:15px;
         background: #eeeeee;
         @apply --paper-material-elevation-2;
       }
@@ -145,9 +145,9 @@ First map in glyconnect
       <paper-tab name="tissues-structures"><span class="layout horizontal center center-justified">Tissue - Glycan</span></paper-tab>
     </paper-tabs>
 
-    <div id="filter" class="layout flex materialCard">
-      <h2>Filters</h2>
-      <vaadin-combo-box id="taxonomyList" label="Taxonomy Filter" items="[[taxType]]" value="{{taxSelected}}" item-value-path="species" item-label-path="species" hidden>
+    <div id="filters" class="layout flex materialCard" hidden>
+      <h3>Filters</h3>
+      <vaadin-combo-box id="taxonomyList" label="Taxonomy Filter" items="[[taxType]]" value="{{taxSelected}}" item-value-path="species" item-label-path="species" >
         <template>
           [[item.species]]
         </template>
@@ -307,7 +307,7 @@ First map in glyconnect
         }
 
         this.$.counter.hidden=false;
-        this.$.taxonomyList.hidden=false;
+        this.$.filters.hidden=false;
 
 
         this.octopusImg = this.resolveUrl('./img/octopusGlyconnect.png');
