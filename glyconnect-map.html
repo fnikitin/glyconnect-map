@@ -8,6 +8,8 @@
 <link rel="import" href="../paper-tabs/paper-tabs.html">
 <link rel="import" href="../vaadin-combo-box/vaadin-combo-box.html">
 <link rel="import" href="../vaadin-material-theme/vaadin-text-field.html">
+<link rel="import" href="../paper-styles/element-styles/paper-material-styles.html">
+
 
 <!--
 `glyconnect-map`
@@ -74,7 +76,7 @@ First map in glyconnect
       .materialCard {
         padding:15px;
         background: #eeeeee;
-        @apply --paper-material-elevation-2;
+        @apply (--paper-material-elevation-2);
       }
       .card {
         background-color: #cc3300;
@@ -122,6 +124,11 @@ First map in glyconnect
         box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 1px 5px 0 rgba(0, 0, 0, 0.12), 0 3px 1px -2px rgba(0, 0, 0, 0.2);
       }
 
+      paper-tab:not(:last-child) {
+        border-right: solid;
+        border-color: #757575 ;
+        border-width: 1px;
+      }
       paper-tab.iron-selected {
         background-color: var(--paper-indigo-500);
         color: white;
