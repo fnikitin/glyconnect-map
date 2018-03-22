@@ -4,6 +4,9 @@
 <link rel="import" href="../paper-button/paper-button.html">
 <link rel="import" href="../paper-tabs/paper-tab.html">
 <link rel="import" href="../paper-tabs/paper-tabs.html">
+<link rel="import" href="../paper-dropdown-menu/paper-dropdown-menu.html">
+<link rel="import" href="../paper-listbox/paper-listbox.html">
+<link rel="import" href="../paper-item/paper-item.html">
 <!--
 `glyconnect-map`
 First map in glyconnect
@@ -154,15 +157,31 @@ First map in glyconnect
 
     <div class="horizontal center-justified layout">
       <paper-button id="align" class="indigo updateButton" raised on-tap="gsaRequest" hidden>Align glycosites by GlycoSiteAlign</paper-button>
-      <a id="downloadResults" download="results.json" href="" hidden onclick="ga('send', 'event', 'download', 'api_download', 'Data Downloaded');"><paper-button class="indigo updateButton" raised>Download Results</paper-button></a>
+      <paper-dropdown-menu label="Taxonomy" class="dropdown-padding" vertical-align="bottom" horizontal-align="left">
+        <paper-listbox slot="dropdown-content" class="dropdown-content" selected="{{taxSelected}}" attr-for-selected="name">
+          <paper-item name="ALL">ALL</paper-item>
+          <template is="dom-repeat" items="{{taxType}}">
+            <paper-item name="{{item.species}}">{{item.species}}</paper-item>
+          </template>
+        </paper-listbox>
+      </paper-dropdown-menu>
     </div>
     <!--url="{{apiServer}}/api/compositions"-->
     <iron-ajax
             id="request"
             handle-as="json"
             on-response="createOctopus"
-            on-error="handleError"
-    ></iron-ajax>
+            on-error="handleError">
+
+    </iron-ajax>
+    <iron-ajax
+            id="taxRequest"
+            url$="[[apiServer]]/api/taxonomies"
+            handle-as="json"
+            method="GET"
+            last-response="{{taxType}}">
+    </iron-ajax>
+
     <form id="gsaForm" action="https://glycoproteome.expasy.org/glycositealign/compoConnect/" method="POST"></form>
 
   </template>
@@ -181,7 +200,6 @@ First map in glyconnect
           filterData: {
             type: Object,
             reflectToAttribute: true,
-            observer: '_makeRequest'
           },
           structureId: {
             type: String,
@@ -207,8 +225,18 @@ First map in glyconnect
           selected: {
             type: String,
             value: 'proteins-structures'
+          },
+          taxSelected: {
+            type: String,
+            value: 'ALL',
           }
         }
+      }
+
+      static get observers() {
+        return [
+          '_makeRequest(filterData,taxSelected)'
+        ]
       }
 
       connectedCallback(){
@@ -216,8 +244,12 @@ First map in glyconnect
         this.noResClass = 'hidden center';
       }
 
-      _makeRequest(filterData){
+      _makeRequest(filterData,taxSelected){
         this.$.align.hidden=true;
+        if(taxSelected && taxSelected !== 'ALL'){
+          filterData.taxonomy = taxSelected;
+        }
+
         if(filterData !== undefined){
           this.$.tabOctopus.classList.remove('hidden');
           var request = this.$.request;
@@ -230,7 +262,6 @@ First map in glyconnect
       handleError(){
         this.$.align.hidden=true;
         this.$.counter.hidden=true;
-        this.$.downloadResults.hidden=true;
 
         //Todo: handle 500 or error in the connection!
         this.octopusImg = this.resolveUrl('./img/octopusGlyconnect.png');
@@ -238,7 +269,6 @@ First map in glyconnect
         map.innerHTML = '';
         this.noResClass = 'center';
         map.scrollIntoView({block: "start", behavior: "smooth"});
-        this.$.downloadResults.href="";
       }
 
       gsaRequest(){
@@ -262,12 +292,10 @@ First map in glyconnect
         }
 
         this.$.counter.hidden=false;
-        this.$.downloadResults.hidden=false;
 
         this.octopusImg = this.resolveUrl('./img/octopusGlyconnect.png');
         var responseData = callData.detail.response;
 
-        this.$.downloadResults.setAttribute("href", "data:text/json;charset=utf-8,"+JSON.stringify(responseData));
         var compConArray = {};
         for (var b = 0; b < responseData.length; b++){
           var toS = b.toString();
