@@ -1,12 +1,14 @@
 <link rel="import" href="../polymer/polymer-element.html">
 <link rel="import" href="../lib-d3/lib-d3.html">
 <link rel="import" href="../iron-flex-layout/iron-flex-layout-classes.html">
+<link rel="import" href="../iron-ajax/iron-ajax.html">
+<link rel="import" href="../neon-animation/web-animations.html">
 <link rel="import" href="../paper-button/paper-button.html">
 <link rel="import" href="../paper-tabs/paper-tab.html">
 <link rel="import" href="../paper-tabs/paper-tabs.html">
-<link rel="import" href="../paper-dropdown-menu/paper-dropdown-menu.html">
-<link rel="import" href="../paper-listbox/paper-listbox.html">
-<link rel="import" href="../paper-item/paper-item.html">
+<link rel="import" href="../vaadin-combo-box/vaadin-combo-box.html">
+
+
 <!--
 `glyconnect-map`
 First map in glyconnect
@@ -132,7 +134,7 @@ First map in glyconnect
         color: black;
       }
     </style>
-    <paper-tabs id="tabOctopus" class="hidden" selected="{{selected}}" attr-for-selected="name" fallback-selection="protStruct" on-iron-select="onTabSelect" >
+    <paper-tabs id="tabOctopus" class="hidden" selected="{{selected}}" attr-for-selected="name" fallback-selection="protStruct">
       <paper-tab name="proteins-structures" ><span class="layout horizontal center center-justified">Protein - Glycan</span></paper-tab>
       <paper-tab name="proteins-taxonomy"><span class="layout horizontal center center-justified">Protein - Taxonomy</span></paper-tab>
       <paper-tab name="proteins-diseases"><span class="layout horizontal center center-justified">Protein - Disease </span></paper-tab>
@@ -157,16 +159,23 @@ First map in glyconnect
 
     <div class="horizontal center-justified layout">
       <paper-button id="align" class="indigo updateButton" raised on-tap="gsaRequest" hidden>Align glycosites by GlycoSiteAlign</paper-button>
-      <paper-dropdown-menu id="taxonomyList" label="Taxonomy" class="dropdown-padding" vertical-align="bottom" horizontal-align="left" hidden>
-        <paper-listbox slot="dropdown-content" class="dropdown-content" selected="{{taxSelected}}" attr-for-selected="name">
-          <paper-item name="ALL">ALL</paper-item>
-          <template is="dom-repeat" items="{{taxType}}">
-            <paper-item name="{{item.species}}">{{item.species}}</paper-item>
-          </template>
-        </paper-listbox>
-      </paper-dropdown-menu>
-    </div>
-    <!--url="{{apiServer}}/api/compositions"-->
+      <vaadin-combo-box id="taxonomyList" label="Taxonomy Filter" items="[[taxType]]" value="{{taxSelected}}" item-value-path="species" item-label-path="species">
+        <template>
+          [[item.species]]
+        </template>
+      </vaadin-combo-box>
+
+
+      <!-- <paper-dropdown-menu id="taxonomyList" label="Taxonomy Filter" class="dropdown-padding" vertical-align="bottom" horizontal-align="left" hidden>
+         <paper-listbox slot="dropdown-content" class="dropdown-content" selected="{{taxSelected}}" attr-for-selected="name">
+           <paper-item name="ALL">ALL</paper-item>
+           <template is="dom-repeat" items="{{taxType}}">
+             <paper-item name="{{item.species}}">{{item.species}}</paper-item>
+           </template>
+         </paper-listbox>
+       </paper-dropdown-menu>-->
+     </div>
+
     <iron-ajax
             id="request"
             handle-as="json"
@@ -224,7 +233,7 @@ First map in glyconnect
           },
           selected: {
             type: String,
-            value: 'proteins-structures'
+            value: 'proteins-structures',
           },
           taxSelected: {
             type: String,
@@ -235,24 +244,34 @@ First map in glyconnect
 
       static get observers() {
         return [
-          '_makeRequest(filterData,taxSelected)'
+          '_makeRequest(filterData,taxSelected,selected)'
         ]
       }
 
       connectedCallback(){
+        super.connectedCallback();
         this.octopusImg = this.resolveUrl('./img/octopusGlyconnect.png');
         this.$.taxRequest.generateRequest();
         this.noResClass = 'hidden center';
       }
 
-      _makeRequest(filterData,taxSelected){
-        this.$.align.hidden=true;
-        this.$.taxonomyList.hidden=true;
-        if(taxSelected && taxSelected !== 'ALL'){
-          filterData.taxonomy = taxSelected;
-        }
+      changeSelectedTab(selected) {
+        var sides = selected.split('-');
+        this.leftSide = sides[0];
+        this.rightSide = sides[1];
+      }
 
-        if(filterData !== undefined){
+      _makeRequest(filterData,taxSelected,selected){
+        this.$.align.hidden=true;
+
+
+        if(filterData && taxSelected && selected){
+          this.changeSelectedTab(selected);
+
+          if(taxSelected && taxSelected !== 'ALL'){
+            filterData.taxonomy = taxSelected;
+          }
+
           this.$.tabOctopus.classList.remove('hidden');
           var request = this.$.request;
           request.url = this.apiServer+'/api/compositions/'+this.leftSide+'-'+this.rightSide;
@@ -264,7 +283,7 @@ First map in glyconnect
       handleError(){
         this.$.align.hidden=true;
         this.$.counter.hidden=true;
-        this.$.taxonomyList.hidden=true;
+
 
         //Todo: handle 500 or error in the connection!
         this.octopusImg = this.resolveUrl('./img/octopusGlyconnect.png');
@@ -295,7 +314,7 @@ First map in glyconnect
         }
 
         this.$.counter.hidden=false;
-        this.$.taxonomyList.hidden=true;
+
 
         this.octopusImg = this.resolveUrl('./img/octopusGlyconnect.png');
         var responseData = callData.detail.response;
@@ -710,13 +729,7 @@ First map in glyconnect
         return {taxonomy_id: taxonomy.id, name: taxonomy.species, id: 'o' + outerId, type: type, related_links: []};
       }
 
-      onTabSelect(event) {
-        var sel =  event.target.selected;
-        var sides = sel.split('-');
-        this.leftSide = sides[0];
-        this.rightSide = sides[1];
-        this._makeRequest(this.filterData);
-      }
+
     }
 
     window.customElements.define(GlyconnectMap.is, GlyconnectMap);
