@@ -6,6 +6,7 @@
 <link rel="import" href="../paper-button/paper-button.html">
 <link rel="import" href="../paper-tabs/paper-tab.html">
 <link rel="import" href="../paper-tabs/paper-tabs.html">
+<link rel="import" href="../paper-dialog/paper-dialog.html">
 <link rel="import" href="../vaadin-combo-box/vaadin-combo-box.html">
 <link rel="import" href="../vaadin-material-theme/vaadin-text-field.html">
 <link rel="import" href="../paper-styles/element-styles/paper-material-styles.html">
@@ -167,6 +168,9 @@ First map in glyconnect
         <paper-card class="card purple">Number of compositions:&nbsp;{{compoNumber}}</paper-card>
         <paper-card class="card blue">Number of {{rightSide}}:&nbsp;{{rightNumber}}</paper-card>
       </div>
+      <div class='layout horizontal end-justified'>
+        <paper-button class="indigo updateButton" raised on-tap="openDialog">Composition Notation</paper-button>
+      </div>
     </div>
 
     <div id="map" class="center"></div>
@@ -177,7 +181,7 @@ First map in glyconnect
 
     <div class="horizontal center-justified layout">
       <paper-button id="align" class="indigo updateButton" raised on-tap="gsaRequest" hidden>Align glycosites by GlycoSiteAlign</paper-button>
-     </div>
+    </div>
 
     <iron-ajax
             id="request"
@@ -196,6 +200,24 @@ First map in glyconnect
 
     <form id="gsaForm" action="https://glycoproteome.expasy.org/glycositealign/compoConnect/" method="POST"></form>
 
+    <paper-dialog id="notation">
+      <h2>Composition Notation</h2>
+      <ul>
+        <li>H = Hex</li>
+        <li>N = HexNAc</li>
+        <li>F = dHex</li>
+        <li>S = NeuAc</li>
+        <li>G = NeuGc</li>
+        <li>P = Pen</li>
+        <li>s = Sulphate</li>
+        <li>p = Phosphate</li>
+        <li>a = Acetyl</li>
+        <li>m = Methyl</li>
+      </ul>
+      <div class="buttons">
+        <paper-button dialog-confirm autofocus>Close</paper-button>
+      </div>
+    </paper-dialog>
   </template>
 
   <script>
@@ -739,6 +761,10 @@ First map in glyconnect
         var responseData = callData.detail.response;
         responseData.push({species: 'ALL'});
         this.taxType = responseData;
+      }
+
+      openDialog(){
+        this.$.notation.open();
       }
 
     }
