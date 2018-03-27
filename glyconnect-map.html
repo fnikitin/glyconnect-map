@@ -2,6 +2,7 @@
 <link rel="import" href="../lib-d3/lib-d3.html">
 <link rel="import" href="../iron-flex-layout/iron-flex-layout-classes.html">
 <link rel="import" href="../iron-ajax/iron-ajax.html">
+<link rel="import" href="../iron-icons/iron-icons.html">
 <link rel="import" href="../neon-animation/web-animations.html">
 <link rel="import" href="../paper-button/paper-button.html">
 <link rel="import" href="../paper-tabs/paper-tab.html">
@@ -64,6 +65,10 @@ First map in glyconnect
       .clicked {
         stroke: steelblue;
         stroke-width: 4px;
+      }
+
+      iron-icon {
+        margin-right: 5px;
       }
 
       .center {
@@ -169,7 +174,7 @@ First map in glyconnect
         <paper-card class="card blue">Number of {{rightSide}}:&nbsp;{{rightNumber}}</paper-card>
       </div>
       <div class='layout horizontal end-justified'>
-        <paper-button class="indigo updateButton" raised on-tap="openDialog">Composition Notation</paper-button>
+        <paper-button class="indigo updateButton" raised on-tap="openDialog"><iron-icon icon="icons:help"></iron-icon>  Composition Notation</paper-button>
       </div>
     </div>
 
