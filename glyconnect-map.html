@@ -383,7 +383,7 @@ First map in glyconnect
             return;
 
           //Composition inner list
-          var composition = {id: 'i' + inner.length, name: that.compositionToString(d.composition), related_links: []};
+          var composition = {id: 'i' + inner.length, name: that.compositionToString(d.composition), related_links: [], reviewed: d.reviewed};
           composition.related_nodes = [composition.id];
           inner.push(composition);
 
@@ -525,6 +525,14 @@ First map in glyconnect
           return '#C83737';
         }
 
+
+        function get_font_color (reviewed)
+        {
+          if (reviewed)
+            return 'black';
+          return '#C83737';
+        }
+
         // Can't just use d3.svg.diagonal because one edge is in normal space, the
         // other edge is in radial space. Since we can't just ask d3 to do projection
         // of a single point, do it ourselves the same way d3 would do it.
@@ -557,7 +565,7 @@ First map in glyconnect
             .attr('class', 'link')
             .attr('id', function(d) { return d.id })
             .attr("d", diagonal)
-            .attr('stroke', function(d) { return get_color(d.inner.name); })
+            .attr('stroke', '#ddd')
             .attr('stroke-width', link_width);
 
         // outer nodes
@@ -599,7 +607,7 @@ First map in glyconnect
 
         onode.append("circle")
             .attr('id', function(d) { return d.id })
-            .attr('fill',function(d){return get_color(d.reviewed); })
+            .attr('fill',function(d){ return get_color(d.reviewed); })
             .attr("r", 4.5);
 
         onode.append("circle")
@@ -611,6 +619,7 @@ First map in glyconnect
             .attr("dy", ".31em")
             .attr("text-anchor", function(d) { return d.x < 180 ? "start" : "end"; })
             .attr("transform", function(d) { return d.x < 180 ? "translate(8)" : "rotate(180)translate(-8)"; })
+            .attr('fill',function(d){return get_font_color(d.reviewed);})
             .text(function(d) { return d.name; });
 
         // inner nodes
@@ -628,7 +637,7 @@ First map in glyconnect
             .attr('width', rect_width)
             .attr('height', rect_height)
             .attr('id', function(d) { return d.id; })
-            .attr('fill', function(d) { return get_color(d.reviewed); });
+            .attr('fill', function(d) {console.log(d); return get_color(d.reviewed); });
 
         inode.append("text")
             .attr('id', function(d) { return d.id + '-txt'; })
