@@ -62,7 +62,7 @@ First map in glyconnect
       }
 
       .clicked {
-        stroke: steelblue;
+        stroke: #C83737;
         stroke-width: 4px;
       }
 
@@ -521,16 +521,16 @@ First map in glyconnect
         function get_color(reviewed)
         {
           if (reviewed)
-            return '#dddddd';
-          return '#C83737';
+            return 'lightblue';
+          return '#dddddd';
         }
 
 
-        function get_font_color (reviewed)
+        function outer_font_color (reviewed)
         {
           if (reviewed)
-            return 'black';
-          return '#C83737';
+            return 'steelblue';
+          return 'black';
         }
 
         // Can't just use d3.svg.diagonal because one edge is in normal space, the
@@ -619,7 +619,7 @@ First map in glyconnect
             .attr("dy", ".31em")
             .attr("text-anchor", function(d) { return d.x < 180 ? "start" : "end"; })
             .attr("transform", function(d) { return d.x < 180 ? "translate(8)" : "rotate(180)translate(-8)"; })
-            .attr('fill',function(d){return get_font_color(d.reviewed);})
+            .attr('fill',function(d){return outer_font_color(d.reviewed);})
             .text(function(d) { return d.name; });
 
         // inner nodes
@@ -637,7 +637,7 @@ First map in glyconnect
             .attr('width', rect_width)
             .attr('height', rect_height)
             .attr('id', function(d) { return d.id; })
-            .attr('fill', function(d) {console.log(d); return get_color(d.reviewed); });
+            .attr('fill', function(d) {return get_color(d.reviewed); });
 
         inode.append("text")
             .attr('id', function(d) { return d.id + '-txt'; })
