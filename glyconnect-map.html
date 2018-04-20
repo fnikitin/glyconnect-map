@@ -118,6 +118,7 @@ First map in glyconnect
 
       vaadin-combo-box {
         width: 300px;
+        margin: 10px;
       }
       paper-tabs {
         --paper-tabs-selection-bar-color: #eee;
@@ -159,7 +160,12 @@ First map in glyconnect
 
     <div id="filters" class="layout flex materialCard" hidden>
       <h3>Filters</h3>
-      <vaadin-combo-box id="taxonomyList" label="Taxonomy Filter" items="[[taxType]]" value="{{taxSelected}}" item-value-path="species" item-label-path="species" >
+      <vaadin-combo-box label="Taxonomy Class Filter" items="[[taxClassType]]" value="{{taxClassSelected}}">
+        <template>
+          [[item]]
+        </template>
+      </vaadin-combo-box>
+      <vaadin-combo-box label="Taxonomy Filter" items="[[taxType]]" value="{{taxSelected}}" item-value-path="species" item-label-path="species">
         <template>
           [[item.species]]
         </template>
@@ -196,7 +202,7 @@ First map in glyconnect
     </iron-ajax>
     <iron-ajax
             id="taxRequest"
-            url$="[[apiServer]]/api/taxonomies"
+            url$="[[apiServer]]/api/taxonomyClasses"
             handle-as="json"
             method="GET"
             on-response="fixTaxList">
@@ -266,14 +272,17 @@ First map in glyconnect
           },
           taxSelected: {
             type: String,
-            value: 'ALL',
+          },
+          taxClassSelected: {
+            type: String,
+            observer: '_updateTaxonomy'
           }
         }
       }
 
       static get observers() {
         return [
-          '_makeRequest(filterData,taxSelected,selected)'
+          '_makeRequest(filterData,taxSelected,selected,taxClassSelected)'
         ]
       }
 
@@ -290,18 +299,23 @@ First map in glyconnect
         this.rightSide = sides[1];
       }
 
-      _makeRequest(filterData,taxSelected,selected){
+      _makeRequest(filterData,taxSelected,selected,taxClassSelected){
         this.$.align.hidden=true;
-        if(filterData && taxSelected && selected){
+        if(filterData && selected){
           this.changeSelectedTab(selected);
 
-          if(taxSelected && taxSelected !== 'ALL'){
+          if(taxSelected){
             filterData.taxonomy = taxSelected;
-          }
-
-          if(taxSelected && taxSelected == 'ALL'){
+          } else {
             delete filterData.taxonomy;
           }
+
+          if(taxClassSelected){
+            filterData.taxonomyClass = taxClassSelected;
+          } else {
+            delete filterData.taxonomyClass;
+          }
+
 
           this.$.tabOctopus.classList.remove('hidden');
           var request = this.$.request;
@@ -763,8 +777,20 @@ First map in glyconnect
 
       fixTaxList(callData){
         var responseData = callData.detail.response;
-        responseData.push({species: 'ALL'});
-        this.taxType = responseData;
+        this.taxonomyDictionary = responseData;
+        this.taxClassType = Object.keys(responseData).sort(function(a, b){
+          if(a < b) return -1;
+          if(a > b) return 1;
+          return 0;
+        });
+      }
+
+      _updateTaxonomy(taxonomyClass){
+        this.taxSelected = '';
+        this.taxType = '';
+        if(taxonomyClass){
+          this.taxType = this.taxonomyDictionary[taxonomyClass];
+        }
       }
 
       openDialog(){
