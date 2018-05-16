@@ -21,7 +21,7 @@ First map in glyconnect
 
 <dom-module id="glyconnect-map">
   <template>
-    <style is="custom-style" include="iron-flex iron-flex-alignment">
+    <style is="custom-style" include="paper-material-styles iron-flex iron-flex-alignment">
       :host {
         display: block;
       }
@@ -78,10 +78,19 @@ First map in glyconnect
       .hidden {
         display: none;
       }
-      .materialCard {
+
+      .warningCard {
         padding:15px;
+        color: #fff;
+        background: #C83737;
+        @apply --paper-material-elevation-2;
+      }
+
+      .materialCard {
+        margin: 10px;
+        padding: 15px;
         background: #eeeeee;
-        @apply (--paper-material-elevation-2);
+        @apply --paper-material-elevation-2;
       }
       .card {
         background-color: #cc3300;
@@ -173,6 +182,13 @@ First map in glyconnect
     </div>
 
     <div id="counter" class="layout flex" hidden>
+      <template is="dom-if" if="{{warningMessage}}">
+        <div class='warningCard'>
+        <span>The result of your query is too large to fit in a readable concept map.
+          Please use filters or add search criteria to your query to refine it.</span>
+        </div>
+      </template>
+
       <div class='layout horizontal center-justified'>
         <paper-card class="card orange">Number of {{leftSide}}:&nbsp;{{leftNumber}}</paper-card>
         <paper-card class="card purple">Number of compositions:&nbsp;{{compoNumber}}</paper-card>
@@ -268,21 +284,26 @@ First map in glyconnect
           },
           selected: {
             type: String,
-            value: 'proteins-structures',
+            value: 'proteins-structures'
           },
           taxSelected: {
-            type: String,
+            type: String
           },
           taxClassSelected: {
             type: String,
             observer: '_updateTaxonomy'
+          },
+          warningMessage: {
+            type: Boolean,
+            value: false
           }
         }
       }
 
       static get observers() {
         return [
-          '_makeRequest(filterData,taxSelected,selected,taxClassSelected)'
+          '_makeRequest(filterData,taxSelected,selected,taxClassSelected)',
+          '_warningMessage(leftNumber,compoNumber,rightNumber)'
         ]
       }
 
@@ -797,6 +818,15 @@ First map in glyconnect
         this.$.notation.open();
       }
 
+      _warningMessage(leftNumber,compoNumber,rightNumber){
+        if(leftNumber && compoNumber && rightNumber){
+          if(leftNumber > 82 || compoNumber > 40 || rightNumber> 95){
+            this.warningMessage = true;
+          } else {
+            this.warningMessage = false;
+          }
+        }
+      }
     }
 
     window.customElements.define(GlyconnectMap.is, GlyconnectMap);
