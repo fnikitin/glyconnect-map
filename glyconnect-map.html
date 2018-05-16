@@ -151,6 +151,10 @@ First map in glyconnect
         color: black;
       }
 
+      paper-button.warning {
+        color: white;
+      }
+
       #warningMessage {
         color: white;
         background: #eb2011;
@@ -241,7 +245,7 @@ First map in glyconnect
       <p>The result of your query is too large to fit in a readable concept map.</p>
       <p>Please use filters or add search criteria to your query to refine it.</p>
       <div class="buttons">
-        <paper-button dialog-confirm autofocus>Close</paper-button>
+        <paper-button class="warning" dialog-confirm autofocus>Close</paper-button>
       </div>
     </paper-dialog>
   </template>
@@ -299,7 +303,6 @@ First map in glyconnect
       static get observers() {
         return [
           '_makeRequest(filterData,taxSelected,selected,taxClassSelected)',
-          '_warningMessage(leftNumber,compoNumber,rightNumber)'
         ]
       }
 
@@ -501,6 +504,8 @@ First map in glyconnect
         this.leftNumber = outerLeft.values().length;
         this.rightNumber = outerRight.values().length;
         this.compoNumber = inner.length;
+
+        this._warningMessage(outerLeft.values().length,inner.length,outerRight.values().length);
 
         var data = {
           inner: inner,
