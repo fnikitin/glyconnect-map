@@ -79,13 +79,6 @@ First map in glyconnect
         display: none;
       }
 
-      .warningCard {
-        padding:15px;
-        color: #fff;
-        background: #C83737;
-        @apply --paper-material-elevation-2;
-      }
-
       .materialCard {
         margin: 10px;
         padding: 15px;
@@ -157,6 +150,13 @@ First map in glyconnect
         text-decoration: none;
         color: black;
       }
+
+      #warningMessage {
+        color: white;
+        background: #eb2011;
+        font-weight: bold;
+        font-size: 20px;
+      }
     </style>
     <paper-tabs id="tabOctopus" class="hidden" selected="{{selected}}" attr-for-selected="name" fallback-selection="protStruct">
       <paper-tab name="proteins-structures" ><span class="layout horizontal center center-justified">Protein - Glycan</span></paper-tab>
@@ -182,13 +182,6 @@ First map in glyconnect
     </div>
 
     <div id="counter" class="layout flex" hidden>
-      <template is="dom-if" if="{{warningMessage}}">
-        <div class='warningCard'>
-        <span>The result of your query is too large to fit in a readable concept map.
-          Please use filters or add search criteria to your query to refine it.</span>
-        </div>
-      </template>
-
       <div class='layout horizontal center-justified'>
         <paper-card class="card orange">Number of {{leftSide}}:&nbsp;{{leftNumber}}</paper-card>
         <paper-card class="card purple">Number of compositions:&nbsp;{{compoNumber}}</paper-card>
@@ -244,6 +237,13 @@ First map in glyconnect
         <paper-button dialog-confirm autofocus>Close</paper-button>
       </div>
     </paper-dialog>
+    <paper-dialog id="warningMessage">
+      <p>The result of your query is too large to fit in a readable concept map.</p>
+      <p>Please use filters or add search criteria to your query to refine it.</p>
+      <div class="buttons">
+        <paper-button dialog-confirm autofocus>Close</paper-button>
+      </div>
+    </paper-dialog>
   </template>
 
   <script>
@@ -292,10 +292,6 @@ First map in glyconnect
           taxClassSelected: {
             type: String,
             observer: '_updateTaxonomy'
-          },
-          warningMessage: {
-            type: Boolean,
-            value: false
           }
         }
       }
@@ -821,9 +817,7 @@ First map in glyconnect
       _warningMessage(leftNumber,compoNumber,rightNumber){
         if(leftNumber && compoNumber && rightNumber){
           if(leftNumber > 82 || compoNumber > 40 || rightNumber> 95){
-            this.warningMessage = true;
-          } else {
-            this.warningMessage = false;
+            this.$.warningMessage.open();
           }
         }
       }
