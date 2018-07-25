@@ -323,24 +323,20 @@ First map in glyconnect
         this.$.align.hidden=true;
         if(filterData && selected){
           this.changeSelectedTab(selected);
-
+          var copyRequest = Object.assign({}, filterData);
           if(taxSelected){
-            filterData.taxonomy = taxSelected;
-          } else {
-            delete filterData.taxonomy;
+            copyRequest.taxonomy = taxSelected;
           }
 
           if(taxClassSelected){
-            filterData.taxonomyClass = taxClassSelected;
-          } else {
-            delete filterData.taxonomyClass;
+            copyRequest.taxonomyClass = taxClassSelected;
           }
 
 
           this.$.tabOctopus.classList.remove('hidden');
           var request = this.$.request;
           request.url = this.apiServer+'/api/compositions/'+this.leftSide+'-'+this.rightSide;
-          request.set( 'params', filterData);
+          request.set( 'params', copyRequest);
           request.generateRequest();
         }
       }
