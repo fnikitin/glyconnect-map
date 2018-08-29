@@ -94,15 +94,22 @@ First map in glyconnect
         flex: 0 0 auto;
         color: white;
       }
-      .orange{
+      .proteins{
         background-color:#f89406;
       }
-      .blue{
+      .structures{
         background-color:#018FD5;
       }
-      .purple{
+      .compositions{
         background-color:#5d6bd5;
       }
+      .diseases{
+        background-color:#f000b6;
+      }
+      .taxonomy{
+        background-color:#DF2E30;
+      }
+
       #counter{
         background-color: white;
       }
@@ -187,9 +194,9 @@ First map in glyconnect
 
     <div id="counter" class="layout flex" hidden>
       <div class='layout horizontal center-justified'>
-        <paper-card class="card orange">Number of {{leftSide}}:&nbsp;{{leftNumber}}</paper-card>
-        <paper-card class="card purple">Number of compositions:&nbsp;{{compoNumber}}</paper-card>
-        <paper-card class="card blue">Number of {{rightSide}}:&nbsp;{{rightNumber}}</paper-card>
+        <paper-card class$="card [[leftSide]]">Number of [[leftSide]]:&nbsp;{{leftNumber]]</paper-card>
+        <paper-card class="card compositions">Number of compositions:&nbsp;[[compoNumber]]</paper-card>
+        <paper-card class$="card [[rightSide]]">Number of [[rightSide]]:&nbsp;[[rightNumber]]</paper-card>
       </div>
       <div class='layout horizontal end-justified'>
         <paper-button class="indigo updateButton" raised on-tap="openDialog"><iron-icon icon="icons:help"></iron-icon>  Composition Notation</paper-button>
