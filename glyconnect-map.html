@@ -779,13 +779,13 @@ First map in glyconnect
           name = protein.uniprot[0].id;
         }
         if(!protein.uniprot){
-          name = 'Protein_'+protein.id;
+          name = 'Unidentified_Protein_'+protein.id;
         }
         return {protein_id: protein.id, id: 'o' + outerId, name: name, type: type, reviewed: protein.reviewed, related_links: []};
       }
 
       glycanObjectGenerator(glycan, outerId, type){
-        return {structure_id: glycan.id, name: 'S' + glycan.id, id: 'o' + outerId, type: type, reviewed: glycan.reviewed, related_links: []};
+        return {structure_id: glycan.id, name: 'StructureID_' + glycan.id, id: 'o' + outerId, type: type, reviewed: glycan.reviewed, related_links: []};
       }
 
       diseaseObjectGenerator(disease, outerId, type){
